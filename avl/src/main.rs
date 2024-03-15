@@ -100,32 +100,84 @@ impl AVL {
     }
 
     fn rotate_left(node: Tree) -> Tree {
-        let right_node = node.borrow_mut().right.take().unwrap();
+        let right_node = node
+            .borrow_mut()
+            .right
+            .take()
+            .expect("Right node must exist for rotation");
         let right_left = right_node.borrow_mut().left.take();
 
-        node.borrow_mut().right = right_left;
+        // End of mutable borrow of node here
+        let node_parent = node.borrow().parent.clone();
 
-        // If the right node has a left child, we need to set its parent pointer
-        if let Some(ref right_left) = node.borrow().right {
+        // Since we have ended the first mutable borrow, we can borrow node again
+        node.borrow_mut().right = right_left.clone();
+
+        if let Some(right_left) = right_left {
             right_left.borrow_mut().parent = Some(node.clone());
         }
 
         right_node.borrow_mut().left = Some(node.clone());
-        right_node.borrow_mut().parent = node.borrow().parent.clone();
+        right_node.borrow_mut().parent = node_parent.clone();
 
-        // Adjust parent's child pointer
-        if let Some(ref parent) = node.borrow().parent {
-            if Rc::ptr_eq(&node, &parent.borrow().left.as_ref().unwrap()) {
-                parent.borrow_mut().left = Some(right_node.clone());
+        // Now deal with the parent's pointers
+        if let Some(parent) = node_parent {
+            let mut parent_borrow_mut = parent.borrow_mut();
+            if let Some(ref parent_right) = parent_borrow_mut.right {
+                if Rc::ptr_eq(&node, parent_right) {
+                    parent_borrow_mut.right = Some(right_node.clone());
+                }
             } else {
-                parent.borrow_mut().right = Some(right_node.clone());
+                parent_borrow_mut.left = Some(right_node.clone());
             }
         }
 
+        // It's safe to borrow node again because we've dropped parent_borrow_mut
         Self::update_height(&node);
         Self::update_height(&right_node);
 
         right_node
+    }
+
+    fn rotate_right(node: Tree) -> Tree {
+        // Rotate right
+        let left_node = node
+            .borrow_mut()
+            .left
+            .take()
+            .expect("Left node must exist for rotation");
+        let left_right = left_node.borrow_mut().right.take();
+
+        // End of mutable borrow of node here
+        let node_parent = node.borrow().parent.clone();
+
+        // Since we have ended the first mutable borrow, we can borrow node again
+        node.borrow_mut().left = left_right.clone();
+
+        if let Some(left_right) = left_right {
+            left_right.borrow_mut().parent = Some(node.clone());
+        }
+
+        left_node.borrow_mut().right = Some(node.clone());
+        left_node.borrow_mut().parent = node_parent.clone();
+
+        // Now deal with the parent's pointers
+        if let Some(parent) = node_parent {
+            let mut parent_borrow_mut = parent.borrow_mut();
+            if let Some(ref parent_left) = parent_borrow_mut.left {
+                if Rc::ptr_eq(&node, parent_left) {
+                    parent_borrow_mut.left = Some(left_node.clone());
+                }
+            } else {
+                parent_borrow_mut.right = Some(left_node.clone());
+            }
+        }
+
+        // It's safe to borrow node again because we've dropped parent_borrow_mut
+        Self::update_height(&node);
+        Self::update_height(&left_node);
+
+        left_node
     }
 
     pub fn get_height(&self) -> i32 {
@@ -142,36 +194,6 @@ impl AVL {
             }
             None => 0,
         }
-    }
-
-    // Rotate right
-    fn rotate_right(node: Tree) -> Tree {
-        let left_node = node.borrow_mut().left.take().unwrap();
-        let left_right = left_node.borrow_mut().right.take();
-
-        node.borrow_mut().left = left_right;
-
-        // If the left node has a right child, we need to set its parent pointer
-        if let Some(ref left_right) = node.borrow().left {
-            left_right.borrow_mut().parent = Some(node.clone());
-        }
-
-        left_node.borrow_mut().right = Some(node.clone());
-        left_node.borrow_mut().parent = node.borrow().parent.clone();
-
-        // Adjust parent's child pointer
-        if let Some(ref parent) = node.borrow().parent {
-            if Rc::ptr_eq(&node, &parent.borrow().right.as_ref().unwrap()) {
-                parent.borrow_mut().right = Some(left_node.clone());
-            } else {
-                parent.borrow_mut().left = Some(left_node.clone());
-            }
-        }
-
-        Self::update_height(&node);
-        Self::update_height(&left_node);
-
-        left_node
     }
 
     fn update_height(node: &Tree) {
@@ -229,6 +251,16 @@ fn main() {
     avl.insert(18);
     avl.insert(17);
     avl.insert(19);
+    avl.insert(13);
+    avl.insert(1);
+    avl.insert(2);
+    avl.insert(3);
+    avl.insert(6);
+    avl.insert(7);
+    avl.insert(9);
+    avl.insert(10);
+    avl.insert(14);
+    avl.insert(15);
 
     println!("{:?}", avl.print_inorder());
     avl.pretty_print();
