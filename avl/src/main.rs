@@ -70,7 +70,6 @@ impl AVL {
                     }
                 }
 
-                // Now that mutable borrows from above have ended, we can balance the tree
                 Self::balance(node)
             }
             None => new_node,
@@ -107,10 +106,8 @@ impl AVL {
             .expect("Right node must exist for rotation");
         let right_left = right_node.borrow_mut().left.take();
 
-        // End of mutable borrow of node here
         let node_parent = node.borrow().parent.clone();
 
-        // Since we have ended the first mutable borrow, we can borrow node again
         node.borrow_mut().right = right_left.clone();
 
         if let Some(right_left) = right_left {
@@ -120,7 +117,7 @@ impl AVL {
         right_node.borrow_mut().left = Some(node.clone());
         right_node.borrow_mut().parent = node_parent.clone();
 
-        // Now deal with the parent's pointers
+        // Parent's pointers
         if let Some(parent) = node_parent {
             let mut parent_borrow_mut = parent.borrow_mut();
             if let Some(ref parent_right) = parent_borrow_mut.right {
@@ -132,7 +129,6 @@ impl AVL {
             }
         }
 
-        // It's safe to borrow node again because we've dropped parent_borrow_mut
         Self::update_height(&node);
         Self::update_height(&right_node);
 
@@ -140,7 +136,6 @@ impl AVL {
     }
 
     fn rotate_right(node: Tree) -> Tree {
-        // Rotate right
         let left_node = node
             .borrow_mut()
             .left
@@ -161,7 +156,7 @@ impl AVL {
         left_node.borrow_mut().right = Some(node.clone());
         left_node.borrow_mut().parent = node_parent.clone();
 
-        // Now deal with the parent's pointers
+        // Parent's pointers
         if let Some(parent) = node_parent {
             let mut parent_borrow_mut = parent.borrow_mut();
             if let Some(ref parent_left) = parent_borrow_mut.left {
@@ -173,7 +168,6 @@ impl AVL {
             }
         }
 
-        // It's safe to borrow node again because we've dropped parent_borrow_mut
         Self::update_height(&node);
         Self::update_height(&left_node);
 
