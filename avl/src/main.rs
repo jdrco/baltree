@@ -129,15 +129,15 @@ impl AVL {
     }
 
     pub fn get_height(&self) -> i32 {
-        self.get_height_recursive(&self.root)
+        self.height_helper(&self.root)
     }
 
-    fn get_height_recursive(&self, node: &AVLTree) -> i32 {
+    fn height_helper(&self, node: &AVLTree) -> i32 {
         match node {
             Some(node) => {
                 1 + max(
-                    self.get_height_recursive(&node.borrow().left),
-                    self.get_height_recursive(&node.borrow().right),
+                    self.height_helper(&node.borrow().left),
+                    self.height_helper(&node.borrow().right),
                 )
             }
             None => 0,
@@ -195,17 +195,17 @@ impl AVL {
     }
 
     pub fn pretty_print(&self) {
-        self.pretty_print_recursive(&self.root, 0, "Root: ");
+        self.print_helper(&self.root, 0, "Root: ");
     }
 
-    fn pretty_print_recursive(&self, node: &AVLTree, space: usize, prefix: &str) {
+    fn print_helper(&self, node: &AVLTree, space: usize, prefix: &str) {
         if node.is_none() {
             return;
         }
         let space = space + 10;
 
         if let Some(ref right) = node.as_ref().unwrap().borrow().right {
-            self.pretty_print_recursive(&Some(right.clone()), space, "Right: ");
+            self.print_helper(&Some(right.clone()), space, "Right: ");
         }
 
         for _ in 10..space {
@@ -214,7 +214,7 @@ impl AVL {
         println!("{}{}", prefix, node.as_ref().unwrap().borrow().key);
 
         if let Some(ref left) = node.as_ref().unwrap().borrow().left {
-            self.pretty_print_recursive(&Some(left.clone()), space, "Left: ");
+            self.print_helper(&Some(left.clone()), space, "Left: ");
         }
     }
 }
