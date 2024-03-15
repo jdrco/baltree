@@ -143,10 +143,8 @@ impl AVL {
             .expect("Left node must exist for rotation");
         let left_right = left_node.borrow_mut().right.take();
 
-        // End of mutable borrow of node here
         let node_parent = node.borrow().parent.clone();
 
-        // Since we have ended the first mutable borrow, we can borrow node again
         node.borrow_mut().left = left_right.clone();
 
         if let Some(left_right) = left_right {
