@@ -231,6 +231,68 @@ impl AVL {
             self.print_helper(&Some(left.clone()), space, "Left: ");
         }
     }
+
+    // Count Function
+    pub fn count_leaves(&self) -> i32 {
+        Self::count_leaves_recursive(&self.root)
+    }
+
+    // Helper function to recursively count the leaves
+    fn count_leaves_recursive(node: &AVLTree) -> i32 {
+        match node {
+            Some(node) => {
+                let node_borrowed = node.borrow();
+                if node_borrowed.left.is_none() && node_borrowed.right.is_none() {
+                    1 // This node is a leaf
+                } else {
+                    // Recursively count the leaves in the left and right subtrees and sum them up
+                    Self::count_leaves_recursive(&node_borrowed.left) + 
+                    Self::count_leaves_recursive(&node_borrowed.right)
+                }
+            },
+            None => 0, // If the node is None, it's not a leaf
+        }
+    }
+
+    pub fn delete(&mut self, key: i32) {
+        self.root = Self::delete_recursive(self.root.take(), key);
+    }
+
+    fn delete_recursive(node: AVLTree, key: i32) -> AVLTree {
+        if let Some(current_node) = node.clone() {
+            let mut current = current_node.borrow_mut();
+            if key < current.key {
+                current.left = Self::delete_recursive(current.left.take(), key);
+            } else if key > current.key {
+                current.right = Self::delete_recursive(current.right.take(), key);
+            } else {
+                // Node with only one child or no child
+                if current.left.is_none() {
+                    return current.right.take();
+                } else if current.right.is_none() {
+                    return current.left.take();
+                }
+                
+                // Node with two children: Get the inorder successor (smallest in the right subtree)
+                let temp = Self::min_value_node(current.right.as_ref().unwrap());
+                current.key = temp.borrow().key;
+                current.right = Self::delete_recursive(current.right.take(), current.key);
+            }
+
+            // Your existing balance function is called here
+            //Some(Self::balance(current_node))
+        } else {
+            return None;
+        }
+        Some(Self::balance(node?))
+    }
+  
+    fn min_value_node(node: &Tree) -> Tree {
+        match &node.borrow().left {
+            Some(left) => Self::min_value_node(left),
+            None => node.clone(),
+        }
+    } 
 }
 
 fn main() {
@@ -255,6 +317,9 @@ fn main() {
     avl.insert(15);
 
     println!("{:?}", avl.print_inorder());
-    avl.pretty_print();
+    //avl.pretty_print();
     println!("Height: {}", avl.get_height());
+
+    avl.delete(5);
+    avl.pretty_print();
 }
