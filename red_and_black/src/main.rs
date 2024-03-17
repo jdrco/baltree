@@ -47,9 +47,9 @@ impl TreeNode {
                             (*new_node).borrow_mut().parent = Some(Rc::clone(node));
                             *right = Some(Rc::clone(new_node));
                         }
-                       // TreeNode::fix()
-                       return;
-                    } 
+                        // TreeNode::fix()
+                        return;
+                    }
                     TreeNode::insert(right, data);
                 } else {
                     let ref mut left = (*node).borrow_mut().left;
@@ -63,7 +63,7 @@ impl TreeNode {
                     }
                     TreeNode::insert(left, data);
                 }
-            },
+            }
             None => {}
         }
     }
@@ -73,7 +73,7 @@ impl TreeNode {
             Some(node) => {
                 TreeNode::disp((*node).borrow().left.clone());
                 println!("This is node: {}", (*node).borrow().key);
-              
+
                 if let Some(parent) = (*node).borrow().parent.clone() {
                     println!("My parent is node: {}", (*parent).borrow().key);
                 } else {
@@ -85,20 +85,43 @@ impl TreeNode {
                 } else {
                     println!("My left child is None.")
                 }
-                   
+
                 if let Some(right) = (*node).borrow().right.clone() {
                     println!("My right child is node: {}", (*right).borrow().key);
                 } else {
                     println!("My right child is None.")
                 }
-                
+
                 TreeNode::disp((*node).borrow().right.clone());
-            },
+            }
+            None => {}
+        }
+    }
+
+    pub fn is_empty(node: RedBlackTree) -> bool {
+        match node {
+            Some(_) => false,
+            None => true,
+        }
+    }
+
+    pub fn print_inorder(node: RedBlackTree) -> Vec<u32> {
+        let mut result: Vec<u32> = Vec::new();
+        Self::inorder_traversal(node, &mut result);
+        result
+    }
+
+    pub fn inorder_traversal(node: RedBlackTree, result: &mut Vec<u32>) {
+        match node {
+            Some(node) => {
+                TreeNode::inorder_traversal((*node).borrow().left.clone(), result);
+                result.push((*node).borrow().key);
+                TreeNode::inorder_traversal((*node).borrow().right.clone(), result);
+            }
             None => {}
         }
     }
 }
-
 
 fn main() {
     let ref mut node = TreeNode::new(8);
@@ -107,6 +130,8 @@ fn main() {
     TreeNode::insert(node, 2);
     TreeNode::insert(node, 7);
     TreeNode::insert(node, 9);
+    let result = TreeNode::print_inorder(node.clone());
+    println!("{:?}", result);
 
-    TreeNode::disp((*node).clone());
+    // TreeNode::disp((*node).clone());
 }
