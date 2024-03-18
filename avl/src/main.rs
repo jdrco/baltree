@@ -198,19 +198,7 @@ impl AVL {
     }
 
     pub fn get_height(&self) -> i32 {
-        self.height_helper(&self.root)
-    }
-
-    fn height_helper(&self, node: &AVLTree) -> i32 {
-        match node {
-            Some(node) => {
-                1 + max(
-                    self.height_helper(&node.borrow().left),
-                    self.height_helper(&node.borrow().right),
-                )
-            }
-            None => 0,
-        }
+        self.root.as_ref().map_or(0, |n| n.borrow().height)
     }
 
     fn update_height(node: &Tree) {
@@ -332,6 +320,14 @@ fn main() {
     avl.insert(27);
     avl.insert(27);
     avl.delete(19);
+    avl.insert(19);
+    avl.insert(31);
+    avl.insert(32);
+    avl.insert(33);
+    avl.insert(51);
+    avl.insert(52);
+    avl.insert(9);
+    avl.insert(8);
 
     println!("{:?}", avl.print_inorder());
     //avl.pretty_print();
