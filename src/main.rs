@@ -40,10 +40,9 @@ fn main() {
     println!("--------------------AVL Tree: End--------------------");
 
     let mut rb = RedBlack::new();
-    rb.insert(4);
-    rb.insert(5);
-    rb.insert(8);
-    rb.insert(2);
+    rb.insert(18);
+    rb.insert(15);
+    rb.insert(16);
     // rb.insert(11);
     // rb.insert(12);
     // rb.insert(18);

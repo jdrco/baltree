@@ -22,12 +22,19 @@ impl RedBlack {
             height: 0,
             color: Some(NodeColor::Red), // New nodes are always red in Red-Black Tree
         }));
-        self.tree.root = Some(RedBlack::insert_node(self.tree.root.clone(), new_node.clone()));
+        if self.tree.root.is_none() {
+            new_node.borrow_mut().color = Some(NodeColor::Black);
+            self.tree.root = Some(new_node);
+        } else {
+            self.tree.root = Some(Self::insert_node(self.tree.root.clone(), new_node.clone()));
+            self.ensure_black_root();
+        }
     }
 
     fn insert_node(root: GenericTree, new_node: Tree) -> Tree {
         match root {
             Some(node) => {
+                // BST insert
                 {
                     let temp_left = node.borrow().left.clone();
                     let temp_right = node.borrow().right.clone();
@@ -40,37 +47,43 @@ impl RedBlack {
                         node.borrow_mut().right = Some(right_tree);
                     }
                 }
+                // Fix violations
                 RedBlack::insert_balance(node)
             }
             None => new_node,
         }
     }
 
-    fn insert_balance(node: Tree) -> Tree {
-        let parent = node.borrow().parent.clone();
-
-        match parent {
-            Some(parent_node) => {
-                let parent_color = &parent_node.borrow().color;
-
-                match parent_color {
-                    Some(NodeColor::Black) => {
-                        // Case 1: Parent is black, so tree is still balanced. Nothing to do here.
-                    },
-                    Some(NodeColor::Red) => {
-                        // Placeholder for Case 2 handling: Parent of new node is red, then check the color of parent's sibling of new node
-                            // a. If color is black or null then do suitable rotation and recolor
-                            // b. if color is red then recolor and also check if grandparent of new node is not root node then recolor it and recheck
-                    },
-                    None => {} // Should technically never happen in a well-formed Red-Black Tree
+    fn insert_balance(mut node: Tree) -> Tree {
+        while let Some(parent_node) = node.borrow().parent.clone() {
+            let parent_color = &parent_node.borrow().color;
+    
+            match parent_color {
+                Some(NodeColor::Black) => {
+                    // Case 1: Parent is black, so tree is still balanced. Nothing to do here.
+                    break;
+                },
+                Some(NodeColor::Red) => {
+                    // Case 2 handling: Parent of new node is red
+                        // a. If color is black or null then do suitable rotation and recolor
+                        // b. if color is red then recolor and also check if grandparent of new node is not root node then recolor it and recheck
+                    
+                    break;
+                },
+                None => {
+                    // Should technically never happen in a well-formed Red-Black Tree
+                    break;
                 }
-            },
-            None => {
-                // The node to insert is the root of the tree
-                node.borrow_mut().color = Some(NodeColor::Black);
             }
         }
+    
         node // Return the potentially modified tree
+    }
+    
+    fn ensure_black_root(&mut self) {
+        if let Some(ref root) = self.tree.root {
+            root.borrow_mut().color = Some(NodeColor::Black);
+        }
     }
 
     pub fn print_structure(&self) {
