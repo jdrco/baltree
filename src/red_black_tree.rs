@@ -43,28 +43,28 @@ impl RedBlackTree {
                         right_tree.borrow_mut().parent = Some(node.clone());
                     }
                 }
-                RedBlackTree::recolor(node)
+                RedBlackTree::recolor(node, new_node.borrow_mut().key)
             }
             None => new_node,
         }
     }
 
-    fn recolor(node: Tree) -> Tree {
+    fn recolor(p_inserted_node: Tree, inserted_val: i32) -> Tree {
         {
             // If x is the root, change its color to black
             {
-                if node.borrow_mut().parent.is_none() {
-                    node.borrow_mut().color = NodeColor::Black;
+                if p_inserted_node.borrow_mut().parent.is_none() {
+                    p_inserted_node.borrow_mut().color = NodeColor::Black;
                 }
             }
     
             // If x's parent is not black and x is not the root
-            if let Some(parent_rc) = node.borrow_mut().parent.clone() {
+            if let Some(parent_rc) = p_inserted_node.borrow_mut().parent.clone() {
                 let mut borrowed_parent = parent_rc.borrow_mut();
 
                 if borrowed_parent.color != NodeColor::Black {
                     // Find the grandparent
-                    let grandparent_rc = borrowed_parent.parent.clone().expect("Grandparent should exist");
+                    let grandparent_rc: Rc<RefCell<Node>> = borrowed_parent.parent.clone().expect("Grandparent should exist");
     
                     // Separate scope for mutable borrow of grandparent
                     {
@@ -92,16 +92,9 @@ impl RedBlackTree {
                                 borrowed_grandparent.color = NodeColor::Red;
     
                                 // (iii) Change x = x's grandparent, repeat steps 2 and 3 for new x
-                                return RedBlackTree::recolor(grandparent_rc.clone());
+                                return RedBlackTree::recolor(grandparent_rc.clone(), inserted_val);
                             } else {
-                                // (i) Left Left Case (p is left child of g and x is left child of p)
-                                RedBlackTree::ll_case(grandparent_rc.clone());
-                                // (ii) Left Right Case (p is left child of g and x is the right child of p)
-                                RedBlackTree::lr_case(grandparent_rc.clone());
-                                // (iii) Right Right Case (Mirror of case i)
-                                RedBlackTree::rr_case(grandparent_rc.clone());
-                                // (iv) Right Left Case (Mirror of case ii)
-                                RedBlackTree::rl_case(grandparent_rc.clone());
+                                Self::rotate_node_case(p_inserted_node.clone());
                             }
                         }
                     }
@@ -110,7 +103,7 @@ impl RedBlackTree {
         }
     
         // No further modifications needed, return the unchanged node
-        node
+        p_inserted_node
     }
     
     // Right rotation of grandparent and swap colors of gp and parent
@@ -169,4 +162,45 @@ impl RedBlackTree {
 
         RedBlackTree::rr_case(gp_node.clone())
     }
+
+    fn rotate_node_case(x: Tree) {
+        if let Some(parent_rc) = x.borrow().parent.clone() {
+            if let Some(grandparent_rc) = parent_rc.borrow().parent.clone() {
+                // Check the orientation of x, p, and g
+                if let Some(parent_left) = grandparent_rc.borrow().left.clone() {
+                    if let Some(x_left) = parent_left.borrow().left.clone() {
+                        if Rc::ptr_eq(&x, &x_left) {
+                            // LL Case
+                            RedBlackTree::ll_case(grandparent_rc.clone());
+                        } else {
+                            // LR Case
+                            RedBlackTree::lr_case(grandparent_rc.clone());
+                        }
+                    } else {
+                        // LR Case
+                        RedBlackTree::lr_case(grandparent_rc.clone());
+                    }
+                } else {
+                    if let Some(parent_right) = grandparent_rc.borrow().right.clone() {
+                        if let Some(x_right) = parent_right.borrow().right.clone() {
+                            if Rc::ptr_eq(&x, &x_right) {
+                                // RR Case
+                                RedBlackTree::rr_case(grandparent_rc.clone());
+                            } else {
+                                // RL Case
+                                RedBlackTree::rl_case(grandparent_rc.clone());
+                            }
+                        } else {
+                            // RL Case
+                            RedBlackTree::rl_case(grandparent_rc.clone());
+                        }
+                    } else {
+                        panic!("Invalid tree structure: No parent's left or right child.");
+                    }
+                };
+            }
+        }
+    }
+    
+
 }
