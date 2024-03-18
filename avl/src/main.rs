@@ -41,7 +41,32 @@ impl AVL {
         }
     }
 
+    pub fn search(&self, key: i32) -> bool {
+        Self::search_recursive(&self.root, key)
+    }
+
+    fn search_recursive(node: &AVLTree, key: i32) -> bool {
+        match node {
+            Some(node) => {
+                let node_borrowed = node.borrow();
+                if key == node_borrowed.key {
+                    true
+                } else if key < node_borrowed.key {
+                    Self::search_recursive(&node_borrowed.left, key)
+                } else {
+                    Self::search_recursive(&node_borrowed.right, key)
+                }
+            }
+            None => false,
+        }
+    }
+
     pub fn insert(&mut self, key: i32) {
+        if Self::search(&self, key) {
+            println!("Key already exists");
+            return;
+        }
+
         let new_node = Rc::new(RefCell::new(Node {
             key,
             left: None,
@@ -55,18 +80,18 @@ impl AVL {
     fn insert_node(root: AVLTree, new_node: Tree) -> Tree {
         match root {
             Some(node) => {
-                // Separate scope to ensure the mutable borrow ends before balance is called
                 {
-                    // Temporarily take the left or right child to avoid multiple mutable borrows
                     let temp_left = node.borrow().left.clone();
                     let temp_right = node.borrow().right.clone();
 
                     if new_node.borrow().key < node.borrow().key {
                         let left_tree = Self::insert_node(temp_left, new_node.clone());
-                        node.borrow_mut().left = Some(left_tree);
+                        node.borrow_mut().left = Some(left_tree.clone());
+                        left_tree.borrow_mut().parent = Some(node.clone());
                     } else {
                         let right_tree = Self::insert_node(temp_right, new_node.clone());
-                        node.borrow_mut().right = Some(right_tree);
+                        node.borrow_mut().right = Some(right_tree.clone());
+                        right_tree.borrow_mut().parent = Some(node.clone());
                     }
                 }
 
@@ -219,7 +244,7 @@ impl AVL {
         let space = space + 10;
 
         if let Some(ref right) = node.as_ref().unwrap().borrow().right {
-            self.print_helper(&Some(right.clone()), space, "Right: ");
+            self.print_helper(&Some(right.clone()), space, "R: ");
         }
 
         for _ in 10..space {
@@ -228,7 +253,7 @@ impl AVL {
         println!("{}{}", prefix, node.as_ref().unwrap().borrow().key);
 
         if let Some(ref left) = node.as_ref().unwrap().borrow().left {
-            self.print_helper(&Some(left.clone()), space, "Left: ");
+            self.print_helper(&Some(left.clone()), space, "L: ");
         }
     }
 
@@ -246,10 +271,10 @@ impl AVL {
                     1 // This node is a leaf
                 } else {
                     // Recursively count the leaves in the left and right subtrees and sum them up
-                    Self::count_leaves_recursive(&node_borrowed.left) + 
-                    Self::count_leaves_recursive(&node_borrowed.right)
+                    Self::count_leaves_recursive(&node_borrowed.left)
+                        + Self::count_leaves_recursive(&node_borrowed.right)
                 }
-            },
+            }
             None => 0, // If the node is None, it's not a leaf
         }
     }
@@ -272,7 +297,7 @@ impl AVL {
                 } else if current.right.is_none() {
                     return current.left.take();
                 }
-                
+
                 // Node with two children: Get the inorder successor (smallest in the right subtree)
                 let temp = Self::min_value_node(current.right.as_ref().unwrap());
                 current.key = temp.borrow().key;
@@ -286,40 +311,31 @@ impl AVL {
         }
         Some(Self::balance(node?))
     }
-  
+
     fn min_value_node(node: &Tree) -> Tree {
         match &node.borrow().left {
             Some(left) => Self::min_value_node(left),
             None => node.clone(),
         }
-    } 
+    }
 }
 
 fn main() {
     let mut avl = AVL::new();
-    avl.insert(4);
-    avl.insert(5);
-    avl.insert(8);
-    avl.insert(11);
-    avl.insert(12);
-    avl.insert(18);
-    avl.insert(17);
-    avl.insert(19);
-    avl.insert(13);
-    avl.insert(1);
-    avl.insert(2);
-    avl.insert(3);
-    avl.insert(6);
-    avl.insert(7);
-    avl.insert(9);
     avl.insert(10);
-    avl.insert(14);
-    avl.insert(15);
+    avl.insert(20);
+    avl.insert(30);
+    avl.insert(40);
+    avl.insert(50);
+    avl.insert(25);
+    avl.insert(29);
+    avl.insert(27);
+    avl.insert(27);
+    avl.delete(19);
 
     println!("{:?}", avl.print_inorder());
     //avl.pretty_print();
     println!("Height: {}", avl.get_height());
-
-    avl.delete(5);
     avl.pretty_print();
+    println!("{:?}", avl.count_leaves());
 }
