@@ -5,6 +5,14 @@ use std::rc::Rc;
 pub type Tree = Rc<RefCell<Node>>;
 pub type GenericTree = Option<Tree>;
 
+
+#[derive(Clone, Debug, PartialEq)]
+pub enum NodeColor {
+    Red,
+    Black,
+    NoColor,
+}
+
 pub struct BalancingTree {
     pub root: GenericTree,
 }
@@ -16,7 +24,7 @@ pub struct Node {
     pub right: GenericTree,
     pub parent: GenericTree,
     pub height: i32, // For AVL. RBT can ignore or use for extra calculations if needed.
-                     // color: Color, // For RBT
+    pub color: NodeColor, // For RBT
 }
 
 impl BalancingTree {
@@ -48,6 +56,7 @@ impl BalancingTree {
             .right
             .take()
             .expect("Right node must exist for rotation");
+        
         let right_left = right_node.borrow_mut().left.take();
 
         let node_parent = node.borrow().parent.clone();

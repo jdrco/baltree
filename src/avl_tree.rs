@@ -1,4 +1,4 @@
-use crate::balancing_tree::{BalancingTree, GenericTree, Node, Tree};
+use crate::balancing_tree::{BalancingTree, GenericTree, Node, Tree, NodeColor};
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -20,6 +20,7 @@ impl AVL {
             right: None,
             parent: None,
             height: 1,
+            color: NodeColor::NoColor,
         }));
         self.tree.root = Some(AVL::insert_node(self.tree.root.clone(), new_node));
     }
