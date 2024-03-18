@@ -55,24 +55,59 @@ impl RedBlack {
     }
 
     fn insert_balance(mut node: Tree) -> Tree {
-        while let Some(parent_node) = node.borrow().parent.clone() {
-            let parent_color = &parent_node.borrow().color;
+        while let Some(parent) = node.borrow().parent.clone() {
+            if parent.borrow().color == Some(NodeColor::Black) {
+                break; // The tree is already balanced if the parent is black.
+            }
     
-            match parent_color {
-                Some(NodeColor::Black) => {
-                    // Case 1: Parent is black, so tree is still balanced. Nothing to do here.
-                    break;
+            let grandparent = parent.borrow().parent.clone();
+            let is_parent_left = grandparent.as_ref().and_then(|gp| {
+                gp.borrow().left.as_ref().map_or(Some(false), |left| Some(Rc::ptr_eq(left, &parent)))
+            });
+    
+            let uncle = grandparent.as_ref().and_then(|gp| {
+                if is_parent_left.is_some() {
+                    gp.borrow().right.clone()
+                } else {
+                    gp.borrow().left.clone()
+                }
+            });
+    
+            match uncle {
+                Some(ref uncle_node) if uncle_node.borrow().color == Some(NodeColor::Red) => {
+                    // Case when uncle is red: recolor parent, uncle, and grandparent
+                    parent.borrow_mut().color = Some(NodeColor::Black);
+                    uncle_node.borrow_mut().color = Some(NodeColor::Black);
+                    grandparent.as_ref().unwrap().borrow_mut().color = Some(NodeColor::Red);
+    
+                    // node = grandparent.unwrap(); // Continue with the grandparent
                 },
-                Some(NodeColor::Red) => {
-                    // Case 2 handling: Parent of new node is red
-                        // a. If color is black or null then do suitable rotation and recolor
-                        // b. if color is red then recolor and also check if grandparent of new node is not root node then recolor it and recheck
+                _ => { // Uncle is black or null, need to perform rotations
+                    if is_parent_left.is_some() {
+                        if Rc::ptr_eq(&node, &parent.borrow().right.as_ref().unwrap()) {
+                            // Left-Right Case
+                            // Placeholder for LEFT-ROTATE(parent)
+                            // node = parent.clone(); // Update `node` to be the parent for the next rotation
+                        }
+                        // Left-Left Case
+                        // Placeholder for setting colors and RIGHT-ROTATE(grandparent)
+                    } else {
+                        if Rc::ptr_eq(&node, &parent.borrow().left.as_ref().unwrap()) {
+                            // Right-Left Case
+                            // Placeholder for RIGHT-ROTATE(parent)
+                            // node = parent.clone(); // Update `node` to be the parent for the next rotation
+                        }
+                        // Right-Right Case
+                        // Placeholder for setting colors and LEFT-ROTATE(grandparent)
+                    }
+    
+                    // After rotation, set colors
+                    parent.borrow_mut().color = Some(NodeColor::Black);
+                    grandparent.unwrap().borrow_mut().color = Some(NodeColor::Red);
                     
-                    break;
-                },
-                None => {
-                    // Should technically never happen in a well-formed Red-Black Tree
-                    break;
+                    // Placeholder for final rotation based on the case
+    
+                    break; // Exit loop after handling the imbalance
                 }
             }
         }
