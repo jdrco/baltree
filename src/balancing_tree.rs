@@ -1,6 +1,6 @@
 use std::cell::RefCell;
-use std::cmp::max;
 use std::rc::Rc;
+use std::cmp::max;
 
 pub type Tree = Rc<RefCell<Node>>;
 pub type GenericTree = Option<Tree>;
@@ -10,13 +10,19 @@ pub struct BalancingTree {
 }
 
 #[derive(Clone, Debug, PartialEq)]
+pub enum NodeColor {
+    Red,
+    Black,
+}
+
+#[derive(Clone, Debug, PartialEq)]
 pub struct Node {
     pub key: i32,
     pub left: GenericTree,
     pub right: GenericTree,
     pub parent: GenericTree,
-    pub height: i32, // For AVL. RBT can ignore or use for extra calculations if needed.
-                     // color: Color, // For RBT
+    pub height: i32,
+    pub color: Option<NodeColor>,
 }
 
 impl BalancingTree {

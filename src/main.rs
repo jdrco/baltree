@@ -4,11 +4,10 @@ mod red_black_tree;
 
 use crate::avl_tree::AVL;
 
-use crate::red_black_tree::RedBlackTree;
+use crate::red_black_tree::RedBlack;
 
 fn main() {
     let mut avl = AVL::new();
-
     avl.insert(4);
     avl.insert(5);
     avl.insert(8);
@@ -39,4 +38,27 @@ fn main() {
     println!("Print Tree Structure (After Delete 5):");
     avl.print_structure();
     println!("--------------------AVL Tree: End--------------------");
+
+    let mut rb = RedBlack::new();
+    rb.insert(4);
+    rb.insert(5);
+    rb.insert(8);
+    rb.insert(2);
+    // rb.insert(11);
+    // rb.insert(12);
+    // rb.insert(18);
+    // rb.insert(17);
+    // rb.insert(19);
+
+    println!("-------------------Red Black Tree: Begin-------------------");
+    println!("Print In-Order: {:?}", rb.tree.print_inorder());
+    println!("Count Leaves: {:?}", rb.tree.count_leaves());
+    println!("Height: {}", rb.tree.get_height());
+    println!("Is Empty: {}", rb.tree.is_empty());
+    println!("Print Tree Structure:");
+    rb.print_structure();
+    // rb.delete(5);
+    // println!("Print Tree Structure (After Delete 5):");
+    // rb.print_structure();
+    println!("--------------------Red Black Tree: End--------------------");
 }
