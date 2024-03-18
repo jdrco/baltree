@@ -31,15 +31,12 @@ fn main() {
     // // avl.insert(14);
     // // avl.insert(15);
 
-    // println!("-------------------AVL Tree: Begin-------------------");
-    // println!("Print In-Order: {:?}", avl.tree.print_inorder());
-    // println!("Count Leaves: {:?}", avl.tree.count_leaves());
-    // println!("Height: {}", avl.tree.get_height());
-    // println!("Is Empty: {}", avl.tree.is_empty());
-    // println!("Print Tree Structure:");
-    // avl.print_structure();
-    // avl.delete(5);
-    // println!("Print Tree Structure (After Delete 5):");
-    // avl.print_structure();
-    // println!("--------------------AVL Tree: End--------------------");
+    println!("-------------------AVL Tree: Begin-------------------");
+    println!("Print In-Order: {:?}", rbt.tree.print_inorder());
+    println!("Count Leaves: {:?}", rbt.tree.count_leaves());
+    println!("Height: {}", rbt.tree.get_height());
+    println!("Is Empty: {}", rbt.tree.is_empty());
+    println!("Print Tree Structure:");
+    rbt.print_structure();
+    println!("--------------------AVL Tree: End--------------------");
 }

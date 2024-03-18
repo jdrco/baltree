@@ -37,30 +37,29 @@ impl RedBlackTree {
                         let left_tree = RedBlackTree::insert_node(temp_left, new_node.clone());
                         node.borrow_mut().left = Some(left_tree.clone());
                         left_tree.borrow_mut().parent = Some(node.clone());
-                        RedBlackTree::recolor(left_tree, new_node.borrow_mut().key)
                     } else {
                         let right_tree = RedBlackTree::insert_node(temp_right, new_node.clone());
                         node.borrow_mut().right = Some(right_tree.clone());
                         right_tree.borrow_mut().parent = Some(node.clone());
-                        RedBlackTree::recolor(right_tree, new_node.borrow_mut().key)
                     }
                 }
+                RedBlackTree::recolor(node, new_node.borrow().key)
             }
             None => new_node,
         }
     }
 
-    fn recolor(inserted_node: Tree, inserted_val: i32) -> Tree {
+    fn recolor(p_inserted_node: Tree, inserted_val: i32) -> Tree {
         {
             // If x is the root, change its color to black
             {
-                if inserted_node.borrow_mut().parent.is_none() {
-                    inserted_node.borrow_mut().color = NodeColor::Black;
+                if p_inserted_node.borrow_mut().parent.is_none() {
+                    p_inserted_node.borrow_mut().color = NodeColor::Black;
                 }
             }
     
             // If x's parent is not black and x is not the root
-            if let Some(parent_rc) = inserted_node.borrow_mut().parent.clone() {
+            if let Some(parent_rc) = p_inserted_node.borrow_mut().parent.clone() {
                 let mut borrowed_parent = parent_rc.borrow_mut();
 
                 if borrowed_parent.color != NodeColor::Black {
@@ -95,7 +94,7 @@ impl RedBlackTree {
                                 // (iii) Change x = x's grandparent, repeat steps 2 and 3 for new x
                                 return RedBlackTree::recolor(grandparent_rc.clone(), inserted_val);
                             } else {
-                                Self::rotate_node_case(inserted_node.clone());
+                                Self::rotate_node_case(p_inserted_node.clone());
                             }
                         }
                     }
@@ -104,7 +103,7 @@ impl RedBlackTree {
         }
     
         // No further modifications needed, return the unchanged node
-        inserted_node
+        p_inserted_node
     }
     
     // Right rotation of grandparent and swap colors of gp and parent
@@ -203,5 +202,35 @@ impl RedBlackTree {
         }
     }
     
+    pub fn print_structure(&self) {
+        self.print_helper(&self.tree.root, 0, "Root: ");
+    }
+
+    fn print_helper(&self, node: &GenericTree, space: usize, prefix: &str) {
+        if node.is_none() {
+            return;
+        }
+        let space = space + 10;
+
+        if let Some(ref right) = node.as_ref().unwrap().borrow().right {
+            self.print_helper(&Some(right.clone()), space, "Right: ");
+        }
+
+        for _ in 10..space {
+            print!(" ");
+        }
+        // Modify this line to include the color of the node
+        let node_ref = node.as_ref().unwrap().borrow();
+        let color = match node_ref.color {
+            NodeColor::Red => "Red",
+            NodeColor::Black => "Black",
+            NodeColor::NoColor => "None",
+        };
+        println!("{}{} ({})", prefix, node_ref.key, color);
+
+        if let Some(ref left) = node_ref.left {
+            self.print_helper(&Some(left.clone()), space, "Left: ");
+        }
+    }
 
 }
