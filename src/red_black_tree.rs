@@ -26,7 +26,7 @@ impl RedBlack {
             new_node.borrow_mut().color = Some(NodeColor::Black);
             self.tree.root = Some(new_node);
         } else {
-            self.tree.root = Some(Self::insert_node(self.tree.root.clone(), new_node.clone()));
+            self.tree.root = Some(RedBlack::insert_node(self.tree.root.clone(), new_node.clone()));
             self.ensure_black_root();
         }
     }
@@ -34,12 +34,14 @@ impl RedBlack {
     fn insert_node(root: GenericTree, new_node: Tree) -> Tree {
         match root {
             Some(node) => {
+                println!("BST insert new node {}, node {}", new_node.borrow().key, node.borrow().key);
                 // BST insert
                 {
                     let temp_left = node.borrow().left.clone();
                     let temp_right = node.borrow().right.clone();
 
                     if new_node.borrow().key < node.borrow().key {
+                        println!("{} < {}", new_node.borrow().key, node.borrow().key);
                         let left_tree = RedBlack::insert_node(temp_left, new_node.clone());
                         node.borrow_mut().left = Some(left_tree);
                     } else {
@@ -54,8 +56,11 @@ impl RedBlack {
         }
     }
 
-    fn insert_balance(mut node: Tree) -> Tree {
+    fn insert_balance(node: Tree) -> Tree {
+        let mut result_node = node.clone();
+        println!("current node {}", node.borrow().key);
         while let Some(parent) = node.borrow().parent.clone() {
+            println!("here!!!!!!!!!!!!");
             if parent.borrow().color == Some(NodeColor::Black) {
                 break; // The tree is already balanced if the parent is black.
             }
@@ -80,39 +85,43 @@ impl RedBlack {
                     uncle_node.borrow_mut().color = Some(NodeColor::Black);
                     grandparent.as_ref().unwrap().borrow_mut().color = Some(NodeColor::Red);
     
-                    // node = grandparent.unwrap(); // Continue with the grandparent
+                    result_node = grandparent.unwrap(); // Continue with the grandparent
                 },
                 _ => { // Uncle is black or null, need to perform rotations
                     if is_parent_left.is_some() {
                         if Rc::ptr_eq(&node, &parent.borrow().right.as_ref().unwrap()) {
                             // Left-Right Case
+                            result_node = parent.clone(); // Update `node` to be the parent for the next rotation
                             // Placeholder for LEFT-ROTATE(parent)
-                            // node = parent.clone(); // Update `node` to be the parent for the next rotation
+                            result_node = BalancingTree::rotate_left(result_node);
+                        } else {
+                            // Left-Left Case
+                            // Placeholder for setting colors and RIGHT-ROTATE(grandparent)
+                            result_node = BalancingTree::rotate_right(grandparent.clone().unwrap());
                         }
-                        // Left-Left Case
-                        // Placeholder for setting colors and RIGHT-ROTATE(grandparent)
                     } else {
                         if Rc::ptr_eq(&node, &parent.borrow().left.as_ref().unwrap()) {
                             // Right-Left Case
+                            result_node = parent.clone(); // Update `node` to be the parent for the next rotation
                             // Placeholder for RIGHT-ROTATE(parent)
-                            // node = parent.clone(); // Update `node` to be the parent for the next rotation
+                            result_node = BalancingTree::rotate_right(result_node);
+                        } else {
+                            // Right-Right Case
+                            // Placeholder for setting colors and LEFT-ROTATE(grandparent)
+                            result_node = BalancingTree::rotate_left(grandparent.clone().unwrap());
                         }
-                        // Right-Right Case
-                        // Placeholder for setting colors and LEFT-ROTATE(grandparent)
                     }
     
                     // After rotation, set colors
                     parent.borrow_mut().color = Some(NodeColor::Black);
                     grandparent.unwrap().borrow_mut().color = Some(NodeColor::Red);
                     
-                    // Placeholder for final rotation based on the case
-    
                     break; // Exit loop after handling the imbalance
                 }
             }
         }
     
-        node // Return the potentially modified tree
+        result_node // Return the potentially modified tree
     }
     
     fn ensure_black_root(&mut self) {
