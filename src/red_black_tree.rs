@@ -22,47 +22,50 @@ impl RedBlack {
             height: 0,
             color: Some(NodeColor::Red), // New nodes are always red in Red-Black Tree
         }));
-        if self.tree.root.is_none() {
-            new_node.borrow_mut().color = Some(NodeColor::Black);
-            self.tree.root = Some(new_node);
-        } else {
-            self.tree.root = Some(RedBlack::insert_node(self.tree.root.clone(), new_node.clone()));
-            self.ensure_black_root();
-        }
-    }
-
-    fn insert_node(root: GenericTree, new_node: Tree) -> Tree {
-        match root {
-            Some(node) => {
-                // println!("BST insert new node {}, node {}", new_node.borrow().key, node.borrow().key);
-                // BST insert
-                {
-                    let temp_left = node.borrow().left.clone();
-                    let temp_right = node.borrow().right.clone();
-
-                    if new_node.borrow().key < node.borrow().key {
-                        // println!("{} < {}", new_node.borrow().key, node.borrow().key);
-                        let left_tree = RedBlack::insert_node(temp_left, new_node.clone());
-                        new_node.borrow_mut().parent = Some(node.clone());
-                        node.borrow_mut().left = Some(left_tree);
-                    } else {
-                        let right_tree = RedBlack::insert_node(temp_right, new_node.clone());
-                        new_node.borrow_mut().parent = Some(node.clone());
-                        node.borrow_mut().right = Some(right_tree);
-                    }
+    
+        let mut p_inserted = None; // This will be the parent of the inserted node
+        let mut root = self.tree.root.clone(); // Start from the root of the tree
+    
+        while let Some(current) = root {
+            p_inserted = Some(Rc::clone(&current)); // Keep track of the potential parent
+            // Scope to limit the duration of borrow
+            let next = {
+                if key < current.borrow().key {
+                    current.borrow().left.clone()
+                } else {
+                    current.borrow().right.clone()
                 }
-                // Fix violations
-                RedBlack::insert_balance(node)
-            }
-            None => RedBlack::insert_balance(new_node),
+            };
+            root = next;
         }
+    
+        // Set the parent of the new node
+        new_node.borrow_mut().parent = p_inserted.clone();
+    
+        // Insert the new node into the tree
+        match p_inserted {
+            None => {
+                // Tree was empty, this node becomes root
+                new_node.borrow_mut().color = Some(NodeColor::Black); // Make root black
+                self.tree.root = Some(new_node);
+            },
+            Some(parent) => {
+                if key < parent.borrow().key {
+                    parent.borrow_mut().left = Some(new_node.clone());
+                } else {
+                    parent.borrow_mut().right = Some(new_node.clone());
+                }
+            },
+        }
+
+        // Ensure the root remains black (may not be needed depending on your color-fixing logic)
+        self.ensure_black_root();
     }
+    
 
     fn insert_balance(node: Tree) -> Tree {
         let mut result_node = node.clone();
-        println!("current node {}", node.borrow().key);
         while let Some(parent) = node.borrow().parent.clone() {
-            println!("parent node {}", parent.borrow().key);
             if parent.borrow().color == Some(NodeColor::Black) {
                 break; // The tree is already balanced if the parent is black.
             }
@@ -117,7 +120,6 @@ impl RedBlack {
                     // After rotation, set colors
                     parent.borrow_mut().color = Some(NodeColor::Black);
                     grandparent.unwrap().borrow_mut().color = Some(NodeColor::Red);
-                    
                     break; // Exit loop after handling the imbalance
                 }
             }
