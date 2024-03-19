@@ -61,20 +61,20 @@ impl AVL {
         }
     }
 
-    pub fn insert(&mut self, key: i32) {
-        if Self::search(&self, key) {
-            println!("Key already exists");
-            return;
+    pub fn insert(&mut self, key: i32) -> Result<(), String> {
+        if self.search(key) {
+            Err("Key already exists".to_string())
+        } else {
+            let new_node = Rc::new(RefCell::new(Node {
+                key,
+                left: None,
+                right: None,
+                parent: None,
+                height: 1,
+            }));
+            self.root = Some(Self::insert_node(self.root.clone(), new_node));
+            Ok(())
         }
-
-        let new_node = Rc::new(RefCell::new(Node {
-            key,
-            left: None,
-            right: None,
-            parent: None,
-            height: 1,
-        }));
-        self.root = Some(Self::insert_node(self.root.clone(), new_node));
     }
 
     fn insert_node(root: AVLTree, new_node: Tree) -> Tree {
@@ -267,8 +267,13 @@ impl AVL {
         }
     }
 
-    pub fn delete(&mut self, key: i32) {
-        self.root = Self::delete_recursive(self.root.take(), key);
+    pub fn delete(&mut self, key: i32) -> Result<(), String> {
+        if !self.search(key) {
+            Err("Key does not exist".to_string())
+        } else {
+            self.root = Self::delete_recursive(self.root.clone(), key);
+            Ok(())
+        }
     }
 
     fn delete_recursive(node: AVLTree, key: i32) -> AVLTree {
