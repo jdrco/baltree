@@ -41,6 +41,34 @@ impl AVL {
         }
     }
 
+    pub fn print_preorder(&self) -> Vec<i32> {
+        let mut result = Vec::new();
+        Self::preorder_traversal(&self.root, &mut result);
+        result
+    }
+
+    fn preorder_traversal(node: &AVLTree, result: &mut Vec<i32>) {
+        if let Some(ref node) = node {
+            result.push(node.borrow().key);
+            Self::preorder_traversal(&node.borrow().left, result);
+            Self::preorder_traversal(&node.borrow().right, result);
+        }
+    }
+
+    pub fn print_postorder(&self) -> Vec<i32> {
+        let mut result = Vec::new();
+        Self::postorder_traversal(&self.root, &mut result);
+        result
+    }
+
+    fn postorder_traversal(node: &AVLTree, result: &mut Vec<i32>) {
+        if let Some(ref node) = node {
+            Self::postorder_traversal(&node.borrow().left, result);
+            Self::postorder_traversal(&node.borrow().right, result);
+            result.push(node.borrow().key);
+        }
+    }
+
     pub fn search(&self, key: i32) -> bool {
         Self::search_recursive(&self.root, key)
     }
