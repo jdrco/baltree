@@ -55,6 +55,7 @@ impl RedBlack {
                 } else {
                     parent.borrow_mut().right = Some(new_node.clone());
                 }
+                RedBlack::insert_balance(&mut self.tree, new_node.clone());
             },
         }
 
@@ -62,8 +63,7 @@ impl RedBlack {
         self.ensure_black_root();
     }
     
-
-    fn insert_balance(node: Tree) -> Tree {
+    fn insert_balance(tree: &mut BalancingTree, node: Tree) -> Tree {
         let mut result_node = node.clone();
         while let Some(parent) = node.borrow().parent.clone() {
             if parent.borrow().color == Some(NodeColor::Black) {
@@ -127,7 +127,7 @@ impl RedBlack {
     
         result_node // Return the potentially modified tree
     }
-    
+
     fn ensure_black_root(&mut self) {
         if let Some(ref root) = self.tree.root {
             root.borrow_mut().color = Some(NodeColor::Black);
