@@ -34,25 +34,27 @@ impl RedBlack {
     fn insert_node(root: GenericTree, new_node: Tree) -> Tree {
         match root {
             Some(node) => {
-                println!("BST insert new node {}, node {}", new_node.borrow().key, node.borrow().key);
+                // println!("BST insert new node {}, node {}", new_node.borrow().key, node.borrow().key);
                 // BST insert
                 {
                     let temp_left = node.borrow().left.clone();
                     let temp_right = node.borrow().right.clone();
 
                     if new_node.borrow().key < node.borrow().key {
-                        println!("{} < {}", new_node.borrow().key, node.borrow().key);
+                        // println!("{} < {}", new_node.borrow().key, node.borrow().key);
                         let left_tree = RedBlack::insert_node(temp_left, new_node.clone());
+                        new_node.borrow_mut().parent = Some(node.clone());
                         node.borrow_mut().left = Some(left_tree);
                     } else {
                         let right_tree = RedBlack::insert_node(temp_right, new_node.clone());
+                        new_node.borrow_mut().parent = Some(node.clone());
                         node.borrow_mut().right = Some(right_tree);
                     }
                 }
                 // Fix violations
                 RedBlack::insert_balance(node)
             }
-            None => new_node,
+            None => RedBlack::insert_balance(new_node),
         }
     }
 
@@ -60,7 +62,7 @@ impl RedBlack {
         let mut result_node = node.clone();
         println!("current node {}", node.borrow().key);
         while let Some(parent) = node.borrow().parent.clone() {
-            println!("here!!!!!!!!!!!!");
+            println!("parent node {}", parent.borrow().key);
             if parent.borrow().color == Some(NodeColor::Black) {
                 break; // The tree is already balanced if the parent is black.
             }

@@ -39,6 +39,7 @@ fn main() {
     avl.print_structure();
     println!("--------------------AVL Tree: End--------------------");
 
+    println!("-------------------Red Black Tree: Begin-------------------");
     let mut rb = RedBlack::new();
     rb.insert(18);
     rb.insert(15);
@@ -49,7 +50,6 @@ fn main() {
     // rb.insert(17);
     // rb.insert(19);
 
-    println!("-------------------Red Black Tree: Begin-------------------");
     println!("Print In-Order: {:?}", rb.tree.print_inorder());
     println!("Count Leaves: {:?}", rb.tree.count_leaves());
     println!("Height: {}", rb.tree.get_height());
