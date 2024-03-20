@@ -1,6 +1,6 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
-use baltree::rb_tree::RedBlack;
-use baltree::avl_tree::AVL;
+use baltree::rb_tree::RedBlackTree;
+use baltree::avl_tree::AVLTree;
 use std::time::Instant;
 
 fn benchmark_avl_tree(c: &mut Criterion) {
@@ -9,7 +9,7 @@ fn benchmark_avl_tree(c: &mut Criterion) {
         let values: Vec<i32> = (1..=size).collect();
         let search_values: Vec<i32> = (1..=size / 10).collect();
 
-        let mut avl = AVL::new();
+        let mut avl = AVLTree::new();
 
         let start_time = Instant::now();
         for value in &values {
@@ -37,7 +37,7 @@ fn benchmark_rb_tree(c: &mut Criterion) {
 
     let tree_sizes = vec![10_000, 40_000, 70_000, 100_000, 130_000];
     for size in tree_sizes {
-        let mut red_black_tree = RedBlack::new();
+        let mut red_black_tree = RedBlackTree::new();
 
         // Insert elements into the tree
         for i in 1..=size {
@@ -65,7 +65,7 @@ fn benchmark_rb_tree(c: &mut Criterion) {
 //         let values: Vec<u32> = (1..=size).collect();
 //         let search_values: Vec<u32> = (1..=size / 10).collect();
 
-//         let mut rb_tree = RedBlackTree::new(); // Directly using RedBlackTree
+//         let mut rb_tree = RedBlackTreeTree::new(); // Directly using RedBlackTreeTree
 
 //         let start_time = Instant::now();
 //         for value in &values {

@@ -3,13 +3,13 @@ use colored::*;
 use std::cell::RefCell;
 use std::rc::Rc;
 
-pub struct RedBlack {
+pub struct RedBlackTree {
     pub tree: BinarySearchTree,
 }
 
-impl RedBlack {
+impl RedBlackTree {
     pub fn new() -> Self {
-        RedBlack {
+        RedBlackTree {
             tree: BinarySearchTree::new(),
         }
     }

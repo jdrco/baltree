@@ -2,13 +2,13 @@ use crate::bs_tree::{BinarySearchTree, GenericTree, Node, NodeColor, Tree};
 use std::cell::RefCell;
 use std::rc::Rc;
 
-pub struct AVL {
+pub struct AVLTree {
     pub tree: BinarySearchTree,
 }
 
-impl AVL {
+impl AVLTree {
     pub fn new() -> Self {
-        AVL {
+        AVLTree {
             tree: BinarySearchTree::new(),
         }
     }
@@ -50,9 +50,9 @@ impl AVL {
             right: None,
             parent: None,
             height: 1,
-            color: Some(NodeColor::Black), // Default color for AVL nodes
+            color: Some(NodeColor::Black), // Default color for AVLTree nodes
         }));
-        self.tree.root = Some(AVL::insert_node(self.tree.root.clone(), new_node));
+        self.tree.root = Some(AVLTree::insert_node(self.tree.root.clone(), new_node));
     }
 
     fn insert_node(root: GenericTree, new_node: Tree) -> Tree {
@@ -63,14 +63,14 @@ impl AVL {
                     let temp_right = node.borrow().right.clone();
 
                     if new_node.borrow().key < node.borrow().key {
-                        let left_tree = AVL::insert_node(temp_left, new_node.clone());
+                        let left_tree = AVLTree::insert_node(temp_left, new_node.clone());
                         node.borrow_mut().left = Some(left_tree);
                     } else {
-                        let right_tree = AVL::insert_node(temp_right, new_node.clone());
+                        let right_tree = AVLTree::insert_node(temp_right, new_node.clone());
                         node.borrow_mut().right = Some(right_tree);
                     }
                 }
-                AVL::balance(node)
+                AVLTree::balance(node)
             }
             None => new_node,
         }
@@ -82,15 +82,15 @@ impl AVL {
         if diff > 1 {
             if BinarySearchTree::get_balance(&node.borrow().left.as_ref().unwrap()) < 0 {
                 let left = node.borrow_mut().left.take().unwrap();
-                node.borrow_mut().left = Some(AVL::rotate_left(left));
+                node.borrow_mut().left = Some(AVLTree::rotate_left(left));
             }
-            return AVL::rotate_right(node);
+            return AVLTree::rotate_right(node);
         } else if diff < -1 {
             if BinarySearchTree::get_balance(&node.borrow().right.as_ref().unwrap()) > 0 {
                 let right = node.borrow_mut().right.take().unwrap();
-                node.borrow_mut().right = Some(AVL::rotate_right(right));
+                node.borrow_mut().right = Some(AVLTree::rotate_right(right));
             }
-            return AVL::rotate_left(node);
+            return AVLTree::rotate_left(node);
         }
         node
     }
