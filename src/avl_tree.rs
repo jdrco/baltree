@@ -127,4 +127,24 @@ impl AVL {
             self.print_helper(&Some(left.clone()), space, "Left: ");
         }
     }
+
+    pub fn search(&self, key: i32) -> bool {
+        Self::search_recursive(&self.tree.root, key)
+    }
+
+    fn search_recursive(node: &GenericTree, key: i32) -> bool {
+        match node {
+            Some(node) => {
+                let node_borrowed = node.borrow();
+                if key == node_borrowed.key {
+                    true
+                } else if key < node_borrowed.key {
+                    Self::search_recursive(&node_borrowed.left, key)
+                } else {
+                    Self::search_recursive(&node_borrowed.right, key)
+                }
+            }
+            None => false,
+        }
+    }
 }
