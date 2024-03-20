@@ -1,20 +1,18 @@
 use std::cell::RefCell;
-use std::cmp::max;
 use std::rc::Rc;
+use std::cmp::max;
 
 pub type Tree = Rc<RefCell<Node>>;
 pub type GenericTree = Option<Tree>;
 
+pub struct BinarySearchTree {
+    pub root: GenericTree,
+}
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum NodeColor {
     Red,
     Black,
-    NoColor,
-}
-
-pub struct BalancingTree {
-    pub root: GenericTree,
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -23,13 +21,13 @@ pub struct Node {
     pub left: GenericTree,
     pub right: GenericTree,
     pub parent: GenericTree,
-    pub height: i32, // For AVL. RBT can ignore or use for extra calculations if needed.
-    pub color: NodeColor, // For RBT
+    pub height: i32,
+    pub color: Option<NodeColor>,
 }
 
-impl BalancingTree {
+impl BinarySearchTree {
     pub fn new() -> Self {
-        BalancingTree { root: None }
+        BinarySearchTree { root: None }
     }
 
     pub fn is_empty(&self) -> bool {
@@ -48,81 +46,6 @@ impl BalancingTree {
             result.push(node.borrow().key);
             Self::inorder_traversal(&node.borrow().right, result);
         }
-    }
-
-    pub fn rotate_left(node: Tree) -> Tree {
-        let right_node = node
-            .borrow_mut()
-            .right
-            .take()
-            .expect("Right node must exist for rotation");
-        
-        let right_left = right_node.borrow_mut().left.take();
-
-        let node_parent = node.borrow().parent.clone();
-
-        node.borrow_mut().right = right_left.clone();
-
-        if let Some(right_left) = right_left {
-            right_left.borrow_mut().parent = Some(node.clone());
-        }
-
-        right_node.borrow_mut().left = Some(node.clone());
-        right_node.borrow_mut().parent = node_parent.clone();
-
-        // Parent's pointers
-        if let Some(parent) = node_parent {
-            let mut parent_borrow_mut = parent.borrow_mut();
-            if let Some(ref parent_right) = parent_borrow_mut.right {
-                if Rc::ptr_eq(&node, parent_right) {
-                    parent_borrow_mut.right = Some(right_node.clone());
-                }
-            } else {
-                parent_borrow_mut.left = Some(right_node.clone());
-            }
-        }
-
-        Self::update_height(&node);
-        Self::update_height(&right_node);
-
-        right_node
-    }
-
-    pub fn rotate_right(node: Tree) -> Tree {
-        let left_node = node
-            .borrow_mut()
-            .left
-            .take()
-            .expect("Left node must exist for rotation");
-        let left_right = left_node.borrow_mut().right.take();
-
-        let node_parent = node.borrow().parent.clone();
-
-        node.borrow_mut().left = left_right.clone();
-
-        if let Some(left_right) = left_right {
-            left_right.borrow_mut().parent = Some(node.clone());
-        }
-
-        left_node.borrow_mut().right = Some(node.clone());
-        left_node.borrow_mut().parent = node_parent.clone();
-
-        // Parent's pointers
-        if let Some(parent) = node_parent {
-            let mut parent_borrow_mut = parent.borrow_mut();
-            if let Some(ref parent_left) = parent_borrow_mut.left {
-                if Rc::ptr_eq(&node, parent_left) {
-                    parent_borrow_mut.left = Some(left_node.clone());
-                }
-            } else {
-                parent_borrow_mut.right = Some(left_node.clone());
-            }
-        }
-
-        Self::update_height(&node);
-        Self::update_height(&left_node);
-
-        left_node
     }
 
     pub fn get_height(&self) -> i32 {
