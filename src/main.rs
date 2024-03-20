@@ -65,8 +65,8 @@ fn main() {
     println!("Is Empty: {}", rb.tree.is_empty());
     println!("Print Tree Structure:");
     rb.print_structure();
-    rb.delete(8);
-    println!("Print Tree Structure (After Delete 5):");
+    rb.delete(20);
+    println!("Print Tree Structure (After Delete):");
     rb.print_structure();
     println!("--------------------Red Black Tree: End--------------------");
     println!();

@@ -135,32 +135,17 @@ impl BinarySearchTree {
     }
 
     pub fn search(&self, key: i32) -> Option<Tree> {
-        let dummy = Node {
-            key,
-            right: None,
-            left: None,
-            parent: None,
-            height: 1,
-            color: Some(NodeColor::Red),
-        };
-        self.search_node(&self.root, &dummy)
-    }
-
-    fn search_node(&self, tree_node: &Option<Tree>, node: &Node) -> Option<Tree> {
-        match tree_node {
-            Some(sub_tree) => {
-                let sub_tree_clone = sub_tree.borrow().clone();
-                if sub_tree_clone.key == node.key {
-                    Some(sub_tree.clone())
-                } else {
-                    if sub_tree_clone.key > node.key {
-                        self.search_node(&sub_tree_clone.left, node)
-                    } else {
-                        self.search_node(&sub_tree_clone.right, node)
-                    }
-                }
+        let mut current_node = self.root.clone();
+        while let Some(node) = current_node {
+            let node_ref = node.borrow();
+            if node_ref.key == key {
+                return Some(node.clone()); 
+            } else if key < node_ref.key {
+                current_node = node_ref.left.clone();
+            } else {
+                current_node = node_ref.right.clone();
             }
-            None => None,
         }
+        None
     }
 }
