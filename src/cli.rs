@@ -13,13 +13,17 @@ fn avl_interface() {
 
         let mut input = String::new();
         input.clear(); // Clear the input buffer before reading a new value
-        io::stdin().read_line(&mut input).expect("Failed to read line");
+        io::stdin()
+            .read_line(&mut input)
+            .expect("Failed to read line");
 
         match input.trim() {
             "1" => {
                 println!("Enter Key to Insert: ");
                 input.clear(); // Clear the input buffer before reading a new value
-                io::stdin().read_line(&mut input).expect("Failed to read line");
+                io::stdin()
+                    .read_line(&mut input)
+                    .expect("Failed to read line");
                 let key = input.trim().parse::<i32>(); // Attempt to parse the input as an integer
 
                 match key {
@@ -30,16 +34,18 @@ fn avl_interface() {
                             avl.insert(k);
                             println!("Key {} inserted.", k);
                         }
-                    },
+                    }
                     Err(_) => println!("Please enter a valid integer."),
                 }
-            },
+            }
             "2" => {
                 println!("Enter Key to Delete: ");
                 input.clear(); // Clear the input buffer before reading a new value
-                io::stdin().read_line(&mut input).expect("Failed to read line");
+                io::stdin()
+                    .read_line(&mut input)
+                    .expect("Failed to read line");
                 let key = input.trim().parse::<i32>(); // Attempt to parse the input as an integer
-                
+
                 match key {
                     Ok(k) => {
                         if avl.tree.search(k).is_some() {
@@ -48,36 +54,42 @@ fn avl_interface() {
                         } else {
                             println!("Key does not exist");
                         }
-                    },
+                    }
                     Err(_) => println!("Please enter a valid integer."),
                 }
             }
             "3" => {
                 println!("The number of leaves is: {}", avl.tree.count_leaves());
-            },
+            }
             "4" => {
                 println!("The height of the tree is: {}", avl.tree.get_height());
-            },
+            }
             "5" => {
-                println!("The tree when in-order is: {:?}", avl.tree.print_inorder()); 
-            },
+                println!("The tree when in-order is: {:?}", avl.tree.print_inorder());
+            }
             "6" => {
-                println!("The tree when pre-order is: {:?}", avl.tree.print_preorder()); 
-            },
+                println!(
+                    "The tree when pre-order is: {:?}",
+                    avl.tree.print_preorder()
+                );
+            }
             "7" => {
-                println!("The tree when post-order is: {:?}", avl.tree.print_postorder()); 
-            },
+                println!(
+                    "The tree when post-order is: {:?}",
+                    avl.tree.print_postorder()
+                );
+            }
             "8" => {
                 println!("Checking if tree is empty: {}", avl.tree.is_empty());
-            },
+            }
             "9" => {
                 println!("Printing Tree:");
                 avl.print_structure()
-            },
+            }
             "10" => {
                 println!("Returning to Main Menu.");
                 break;
-            },
+            }
             _ => println!("Invalid input, try again!"),
         }
     }
@@ -94,13 +106,17 @@ fn rb_interface() {
 
         let mut input = String::new();
         input.clear(); // Clear the input buffer before reading a new value
-        io::stdin().read_line(&mut input).expect("Failed to read line");
+        io::stdin()
+            .read_line(&mut input)
+            .expect("Failed to read line");
 
         match input.trim() {
             "1" => {
                 println!("Enter Key to Insert: ");
                 input.clear(); // Clear the input buffer before reading a new value
-                io::stdin().read_line(&mut input).expect("Failed to read line");
+                io::stdin()
+                    .read_line(&mut input)
+                    .expect("Failed to read line");
                 let key = input.trim().parse::<i32>(); // Attempt to parse the input as an integer
 
                 match key {
@@ -111,55 +127,63 @@ fn rb_interface() {
                             rbt.insert(k);
                             println!("Key {} inserted.", k);
                         }
-                    },
+                    }
                     Err(_) => println!("Please enter a valid integer."),
                 }
-            },
+            }
             "2" => {
                 println!("Enter Key to Delete: ");
                 input.clear(); // Clear the input buffer before reading a new value
-                io::stdin().read_line(&mut input).expect("Failed to read line");
+                io::stdin()
+                    .read_line(&mut input)
+                    .expect("Failed to read line");
                 let key = input.trim().parse::<i32>(); // Attempt to parse the input as an integer
-                
+
                 match key {
                     Ok(k) => {
                         if rbt.tree.search(k).is_some() {
                             // TODO: handle delete
-                            // rbt.delete(k);
+                            rbt.delete(k);
                             println!("Key {} deleted.", k);
                         } else {
                             println!("Key does not exist");
                         }
-                    },
+                    }
                     Err(_) => println!("Please enter a valid integer."),
                 }
             }
             "3" => {
                 println!("The number of leaves is: {}", rbt.tree.count_leaves());
-            },
+            }
             "4" => {
                 println!("The height of the tree is: {}", rbt.tree.get_height());
-            },
+            }
             "5" => {
-                println!("The tree when in-order is: {:?}", rbt.tree.print_inorder()); 
-            },
+                println!("The tree when in-order is: {:?}", rbt.tree.print_inorder());
+            }
             "6" => {
-                println!("The tree when pre-order is: {:?}", rbt.tree.print_preorder()); 
-            },
+                println!(
+                    "The tree when pre-order is: {:?}",
+                    rbt.tree.print_preorder()
+                );
+            }
             "7" => {
-                println!("The tree when post-order is: {:?}", rbt.tree.print_postorder()); 
-            },
+                println!(
+                    "The tree when post-order is: {:?}",
+                    rbt.tree.print_postorder()
+                );
+            }
             "8" => {
                 println!("Checking if tree is empty: {}", rbt.tree.is_empty());
-            },
+            }
             "9" => {
                 println!("Printing Tree:");
                 rbt.print_structure()
-            },
+            }
             "10" => {
                 println!("Returning to Main Menu.");
                 break;
-            },
+            }
             _ => println!("Invalid input, try again!"),
         }
     }
@@ -173,20 +197,18 @@ pub fn user_input_display() {
         println!("1: Create AVL tree\n2: Create Red Black tree\n3: Quit");
 
         let mut input = String::new();
-        io::stdin().read_line(&mut input).expect("Failed to read line");
+        io::stdin()
+            .read_line(&mut input)
+            .expect("Failed to read line");
 
         match input.trim() {
-            "1" => {
-                avl_interface()
-            }
-            "2" => {
-                rb_interface()
-            }
+            "1" => avl_interface(),
+            "2" => rb_interface(),
             "3" => {
                 println!("Quit");
                 break;
             }
-            _=> println!("Invalid input, try again!"),
+            _ => println!("Invalid input, try again!"),
         }
     }
 }

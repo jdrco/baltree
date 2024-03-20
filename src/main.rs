@@ -1,7 +1,7 @@
 mod avl_tree;
 mod bs_tree;
-mod rb_tree;
 mod cli;
+mod rb_tree;
 
 use crate::avl_tree::AVLTree;
 use crate::rb_tree::RedBlackTree;
@@ -46,7 +46,6 @@ fn main() {
     rb.insert(16);
     rb.insert(11);
     rb.insert(12);
-
     rb.insert(17);
     rb.insert(19);
     rb.insert(10);
@@ -56,15 +55,19 @@ fn main() {
     rb.insert(9);
     rb.insert(30);
 
+    // rb.insert(8);
+    // rb.insert(16);
+    // rb.insert(4);
+
     println!("Print In-Order: {:?}", rb.tree.print_inorder());
     println!("Count Leaves: {:?}", rb.tree.count_leaves());
     println!("Height: {}", rb.tree.get_height());
     println!("Is Empty: {}", rb.tree.is_empty());
     println!("Print Tree Structure:");
     rb.print_structure();
-    // rb.delete(5);
-    // println!("Print Tree Structure (After Delete 5):");
-    // rb.print_structure();
+    rb.delete(8);
+    println!("Print Tree Structure (After Delete 5):");
+    rb.print_structure();
     println!("--------------------Red Black Tree: End--------------------");
     println!();
     cli::user_input_display();

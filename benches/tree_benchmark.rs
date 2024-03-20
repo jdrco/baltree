@@ -1,6 +1,6 @@
-use criterion::{black_box, criterion_group, criterion_main, Criterion};
-use baltree::rb_tree::RedBlackTree;
 use baltree::avl_tree::AVLTree;
+use baltree::rb_tree::RedBlackTree;
+use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use std::time::Instant;
 
 fn benchmark_avl_tree(c: &mut Criterion) {
@@ -26,7 +26,7 @@ fn benchmark_avl_tree(c: &mut Criterion) {
         // Record AVL benchmark results...
         c.benchmark_group(format!("Tree Size {}", size))
             .bench_function("AVL Insert", |b| b.iter(|| black_box(avl_insert_time)));
-        
+
         c.benchmark_group(format!("Tree Size {}", size))
             .bench_function("AVL Search", |b| b.iter(|| black_box(avl_search_time)));
     }
@@ -88,5 +88,5 @@ fn benchmark_rb_tree(c: &mut Criterion) {
 //         }
 //}
 
-criterion_group!(benches, benchmark_avl_tree, benchmark_rb_tree);//, benchmark_red_black_tree);
+criterion_group!(benches, benchmark_avl_tree, benchmark_rb_tree); //, benchmark_red_black_tree);
 criterion_main!(benches);

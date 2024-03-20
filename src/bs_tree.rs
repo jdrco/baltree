@@ -1,6 +1,6 @@
 use std::cell::RefCell;
-use std::rc::Rc;
 use std::cmp::max;
+use std::rc::Rc;
 
 pub type Tree = Rc<RefCell<Node>>;
 pub type GenericTree = Option<Tree>;
