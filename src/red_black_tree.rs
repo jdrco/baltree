@@ -256,6 +256,7 @@ pub mod red_black_tree {
             // set the left_child's right child to parent
             left_child.as_ref().unwrap().borrow_mut().right = Some(parent.clone());
             parent.borrow_mut().parent = left_child.clone();
+            print!("Hello")
     
         }
     
@@ -294,12 +295,14 @@ pub mod red_black_tree {
         pub fn delete(&mut self, key: i32) {
             let node_to_be_deleted: Option<Rc<RefCell<Node>>> = self.search(key);
             if let Some(node_to_be_deleted) = node_to_be_deleted {
-                let parent = node_to_be_deleted.borrow().parent.clone();
-                let left_child = node_to_be_deleted.borrow().left.clone();
-                let right_child = node_to_be_deleted.borrow().right.clone();
+                
+                // Track the parent and children of the node
+                let mut parent: Option<Rc<RefCell<Node>>> = node_to_be_deleted.borrow().parent.clone();
+                let left_child: Option<Rc<RefCell<Node>>> = node_to_be_deleted.borrow().left.clone();
+                let right_child: Option<Rc<RefCell<Node>>> = node_to_be_deleted.borrow().right.clone();
     
                 // Save the color of nodeToBeDeleted
-                let mut u_original_color = node_to_be_deleted.borrow().color.clone();
+                let mut u_original_color: Option<NodeColor> = node_to_be_deleted.borrow().color.clone();
     
                 // If left child is None assign it to x
                 let x: Option<Rc<RefCell<Node>>>;
@@ -309,15 +312,17 @@ pub mod red_black_tree {
                     self.transplant(Some(node_to_be_deleted.clone()), right_child.clone());
                 } else if right_child.is_none() {
                     x = left_child.clone();
-                    self.transplant(Some(node_to_be_deleted.clone()), x.clone());
+                    self.transplant(Some(node_to_be_deleted.clone()), left_child.clone());
                 } else {
-                    let y = self.find_max(left_child.clone());
+                    let y = self.find_min(right_child.clone());
                     u_original_color = y.as_ref().unwrap().borrow().color.clone();
                     x = y.as_ref().unwrap().borrow().right.clone();
     
                     if y.as_ref().unwrap().borrow().parent.as_ref().unwrap().borrow().key == node_to_be_deleted.borrow().key {
                         if let Some(x) = &x {
                             x.borrow_mut().parent = y.clone();
+                        } else {
+                            parent = y.clone();
                         }
                     } else {
                         self.transplant(y.clone(), y.as_ref().unwrap().borrow().right.clone());
@@ -333,147 +338,162 @@ pub mod red_black_tree {
                     self.delete_fix(x.clone(), parent.clone());
                 }
             } else {
-                println!("Key not found");
+                println!("Key {} not found", key);
             }
             self.count -= 1;
         }
     
         fn delete_fix(&mut self, x: Option<Tree>, parent: Option<Tree>) {
+            // Track the current parent to make it easier to access its data
             let mut cur_p: Option<Rc<RefCell<Node>>> = parent.clone();
+
+            // Track the current x as it changes after rotations
             let mut cur_x: Option<Rc<RefCell<Node>>> = x.clone();
             
+            // Track whether x has become the root
             let mut x_is_root = cur_p.is_none();
-            let mut x_is_black = cur_x.as_ref().map_or(true, |node| node.borrow().color == Some(NodeColor::Black));
-            
-            while !x_is_root && x_is_black {
-                let mut s: Option<Rc<RefCell<Node>>>;
-                if cur_x == cur_p.as_ref().unwrap().borrow().left {
-                    s = cur_p.as_ref().unwrap().borrow().right.clone();
 
-                    // All nodes considered Black when None
-                    if s.is_some() {
-                        let s_is_black =  s.as_ref().map_or(true,|node| node.borrow().color == Some(NodeColor::Black));
-                        if !s_is_black {
-                            s.as_ref().unwrap().borrow_mut().color = Some(NodeColor::Black);
-                            cur_p.as_ref().unwrap().borrow_mut().color = Some(NodeColor::Red);
+            // Track when x is black
+            let mut x_is_black = self.check_color(cur_x.clone());
+            
+            // While x is not the root and it is black
+            while !x_is_root && x_is_black {
+                // Variable to hold sibling of x
+                let mut s: Option<Rc<RefCell<Node>>>;
+
+                // Variable to check whether x is left or right child
+                let child_is_left:bool;
+
+                // Set it to true when we are left child and false for right
+                if cur_x == cur_p.as_ref().unwrap().borrow().left {
+                    child_is_left = true;
+                } else {
+                    child_is_left = false;
+                }
+
+                if child_is_left {
+                    // Sibling assigned as right child of parent of x
+                    s = cur_p.as_ref().unwrap().borrow().right.clone();
+                } else {
+                    // Sibling assigned as left child of parent of x
+                    s = cur_p.as_ref().unwrap().borrow().left.clone();
+                }
+                
+                // Need to check so that we do not get an error
+                if s.is_some() {
+
+                    // Check if the sibling is red
+                    let s_is_black = self.check_color(s.clone());
+                    if !s_is_black {
+                        // If yes then set it to black and change the parent to red
+                        s.as_ref().unwrap().borrow_mut().color = Some(NodeColor::Black);
+                        cur_p.as_ref().unwrap().borrow_mut().color = Some(NodeColor::Red);
+                        
+                        // Rotate the parent left or right depending on whether
+                        // x is the left or right child. Then reassign sibling
+                        // to new position.
+                        if child_is_left {
                             self.rotate_left(cur_p.as_ref().unwrap().clone());
                             s = cur_p.as_ref().unwrap().borrow().right.clone();
+                        } else {
+                            self.rotate_right(cur_p.as_ref().unwrap().clone());
+                            s = cur_p.as_ref().unwrap().borrow().left.clone();
                         }
+                        
+                    }
 
-                        // Children of sibling of x
-                        let s_left = s.as_ref().unwrap().borrow().clone().left.clone();
-                        let s_right = s.as_ref().unwrap().borrow().clone().right.clone();
+                    // Children of sibling of x
+                    let mut s_left: Option<Rc<RefCell<Node>>> = s.as_ref().unwrap().borrow().clone().left.clone();
+                    let mut s_right: Option<Rc<RefCell<Node>>> = s.as_ref().unwrap().borrow().clone().right.clone();
 
-                        // can turn into function
-                        let s_left_is_black = if s_left.is_some() {
-                            s_left.as_ref().unwrap().borrow().clone().color == Some(NodeColor::Black)
-                        } else {
-                            true
-                        };
+                    // Check the color of both children of sibling
+                    let s_left_is_black = self.check_color(s_left.clone());
+                    let s_right_is_black = self.check_color(s_right.clone());
 
-                        let s_right_is_black = if s_right.is_some() {
-                            s_right.as_ref().unwrap().borrow().clone().color == Some(NodeColor::Black)
-                        } else {
-                            true
-                        };
-                        if s_left_is_black && s_right_is_black {
-                            s.as_ref().unwrap().borrow_mut().color = Some(NodeColor::Red);
-                            cur_x = cur_p.clone();
-                            
-                            // Update cur_p to hold granparent
-                            let g = cur_p.as_ref().unwrap().borrow().clone().parent.clone();
-                            cur_p = g.clone();
+                    // If both are black we are either at a leaf or the root
+                    if s_left_is_black && s_right_is_black {
+                        // Set the sibling to Red since both children are black
+                        s.as_ref().unwrap().borrow_mut().color = Some(NodeColor::Red);
 
-                            x_is_black = if cur_x.is_some() {
-                                cur_x.as_ref().unwrap().borrow().clone().color == Some(NodeColor::Black)
-                            } else {
-                                true
-                            };
-                        } else {
+                        // Store x's parent in x
+                        cur_x = cur_p.clone();
+                        
+                        // Need to track x's grandparent as its parent after reassignment
+                        let grandparent: Option<Rc<RefCell<Node>>> = cur_p.as_ref().unwrap().borrow().clone().parent.clone();
+                        cur_p = grandparent.clone();
+
+                        // Update tracking variable after x is reassigned
+                        x_is_black = self.check_color(cur_x.clone());
+                        x_is_root = cur_p.is_none();
+
+                    } else {
+                        if child_is_left {
                             if s_right_is_black {
+                                // Set the left sibling to be black as well
                                 if s_left.is_some() {
                                     s_left.as_ref().unwrap().borrow_mut().color = Some(NodeColor::Black);
                                 }
 
+                                // Set s to be red
                                 s.as_ref().unwrap().borrow_mut().color = Some(NodeColor::Red);
                                 
+                                // Rotate s to the right
                                 self.rotate_right(s.as_ref().unwrap().clone());
                                 
+                                // Reassign s to the new right child of x's parent
                                 s = cur_p.as_ref().unwrap().borrow().right.clone();
+                                s_right = s.as_ref().unwrap().borrow().right.clone();
+                                s_left = s.as_ref().unwrap().borrow().left.clone();
                             }
+                        } else {
+                            if s_left_is_black{
+                                // Set right child to black
+                                if s_right.is_some() {
+                                    s_right.as_ref().unwrap().borrow_mut().color = Some(NodeColor::Black);
+                                }
+                                
+                                // Set color of s to red
+                                s.as_ref().unwrap().borrow_mut().color = Some(NodeColor::Red);
 
-                            s.as_ref().unwrap().borrow_mut().color = cur_p.as_ref().unwrap().borrow().color.clone();
+                                // Rotate s to the left and then reassign sibling
+                                self.rotate_left(s.as_ref().unwrap().clone());
+                                s = cur_p.as_ref().unwrap().borrow().left.clone();
+                                s_right = s.as_ref().unwrap().borrow().right.clone();
+                                s_left = s.as_ref().unwrap().borrow().left.clone();
+                            }
+                        }
 
-                            cur_p.as_ref().unwrap().borrow_mut().color = Some(NodeColor::Black);
+                        // Set the color of s to the color of x's parent
+                        s.as_ref().unwrap().borrow_mut().color = cur_p.as_ref().unwrap().borrow().color.clone();
 
+                        // Set x's parent color to black
+                        cur_p.as_ref().unwrap().borrow_mut().color = Some(NodeColor::Black);
+
+                        if child_is_left {
+                            // Set the right child of s to black
                             if s_right.is_some() {
                                 s_right.as_ref().unwrap().borrow_mut().color = Some(NodeColor::Black);
                             }
 
+                            // Rotate the parent left
                             self.rotate_left(cur_p.as_ref().unwrap().clone());
-
-                            x_is_root = true;
-                        }
-
-                    }
-
-                } else {
-                    s = cur_p.as_ref().unwrap().borrow().left.clone();
-                    if s.is_some() {
-                        if s.as_ref().unwrap().borrow().clone().color == Some(NodeColor::Red) {
-                            // DB's sibling is red
-                            // swap color of p with s
-                            // rotate parent node right
-                            s.as_ref().unwrap().borrow_mut().color = Some(NodeColor::Black);
-                            cur_p.as_ref().unwrap().borrow_mut().color = Some(NodeColor::Red);
-                            self.rotate_right(cur_p.as_ref().unwrap().clone());
-                            s = cur_p.as_ref().unwrap().borrow().left.clone();
-                        }
-                        let s_left = s.as_ref().unwrap().borrow().clone().left.clone();
-                        let s_right = s.as_ref().unwrap().borrow().clone().right.clone();
-
-                        let s_left_color = if s_left.is_some() {
-                            s_left.as_ref().unwrap().borrow().clone().color == Some(NodeColor::Black)
                         } else {
-                            true
-                        };
-
-                        let s_right_color = if s_right.is_some() {
-                            s_right.as_ref().unwrap().borrow().clone().color == Some(NodeColor::Black)
-                        } else {
-                            true
-                        };
-
-                        if s_left_color && s_right_color {
-                            s.as_ref().unwrap().borrow_mut().color = Some(NodeColor::Red);
-                            cur_x = cur_p.clone();
-                            let g = cur_p.as_ref().unwrap().borrow().clone().parent.clone();
-                            cur_p = g.clone();
-                            x_is_black = if cur_x.is_some() {
-                                cur_x.as_ref().unwrap().borrow().clone().color == Some(NodeColor::Black)
-                            } else {
-                                true
-                            };
-                        } else {
-                            if s_right.is_some() && s_right.as_ref().unwrap().borrow().clone().color == Some(NodeColor::Black) {
-                                if s_left.is_some() {
-                                    s_left.as_ref().unwrap().borrow_mut().color = Some(NodeColor::Black);
-                                    s.as_ref().unwrap().borrow_mut().color = Some(NodeColor::Red);
-                                    self.rotate_left(s.unwrap());
-                                    s = cur_p.as_ref().unwrap().borrow().left.clone();
-                                }
-                            }
-                            s.as_ref().unwrap().borrow_mut().color = cur_p.as_ref().unwrap().borrow().color.clone();
-                            cur_p.as_ref().unwrap().borrow_mut().color = Some(NodeColor::Black);
+                            // Set the left child of sibling to black
                             if s_left.is_some() {
                                 s_left.as_ref().unwrap().borrow_mut().color = Some(NodeColor::Black);
                             }
+
+                            // Rotate the parent to the right
                             self.rotate_right(cur_p.as_ref().unwrap().clone());
-                            x_is_root = true;
                         }
+
+                        // We are at the root
+                        x_is_root = true;
                     }
                 }
             }
+            
+            // Set x to black once loop breaks in case it is root
             if let Some(cur_x) = x {
                 cur_x.borrow_mut().color = Some(NodeColor::Black);
             }
@@ -496,25 +516,25 @@ pub mod red_black_tree {
                 }
             }
             if child.is_some() {
-                // replacement node exists MAYBE ERROR HERE
+                // replacement node exists
                 child.as_ref().unwrap().borrow_mut().parent = u_p.clone();
             }
         }
     
-        // fn find_min(&self, tree: Option<Tree>) -> Option<Tree> {
-        //     match tree {
-        //         Some(sub_tree) => {
-        //             let mut left = Some(sub_tree.clone());
-        //             while left.as_ref().unwrap().borrow().left.clone().is_some() {
-        //                 left = left.unwrap().borrow().left.clone();
-        //             }
-        //             left
-        //         },
-        //         None => {
-        //             tree
-        //         }
-        //     }
-        // }
+        fn find_min(&self, tree: Option<Tree>) -> Option<Tree> {
+            match tree {
+                Some(sub_tree) => {
+                    let mut left = Some(sub_tree.clone());
+                    while left.as_ref().unwrap().borrow().left.clone().is_some() {
+                        left = left.unwrap().borrow().left.clone();
+                    }
+                    left
+                },
+                None => {
+                    tree
+                }
+            }
+        }
     
         fn find_max(&self, tree: Option<Tree>) -> Option<Tree> {
             match tree {
@@ -529,6 +549,10 @@ pub mod red_black_tree {
                     tree
                 }
             }
+        }
+
+        fn check_color(&self, tree: Option<Tree>) -> bool {
+            tree.as_ref().map_or(true,|node| node.borrow().color == Some(NodeColor::Black))
         }
     }
 
