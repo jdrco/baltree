@@ -1,6 +1,7 @@
-use criterion::{criterion_group, criterion_main, Criterion};
-use baltree::rb_tree::RedBlackTree;
 use baltree::avl_tree::AVLTree;
+use baltree::rb_tree::RedBlackTree;
+use criterion::{black_box, criterion_group, criterion_main, Criterion};
+use std::time::Instant;
 
 // fn benchmark_avl_tree(c: &mut Criterion) {
 //     let tree_sizes = [10_000, 40_000, 70_000, 100_000, 130_000];
@@ -15,7 +16,6 @@ use baltree::avl_tree::AVLTree;
 //             avl.insert(*value);
 //         }
 //         let avl_insert_time = start_time.elapsed();
-
 //         let start_time = Instant::now();
 //         for value in &search_values {
 //             avl.search(*value);
@@ -59,7 +59,7 @@ fn benchmark_avl_tree_fix(c: &mut Criterion) {
                 },
                 |tree| {
                     for value in 1..=(size / 10) {
-                        tree.search(value);
+                        tree.tree.search(value);
                     }
                 },
                 criterion::BatchSize::SmallInput,
@@ -117,7 +117,7 @@ fn benchmark_rb_tree_fix(c: &mut Criterion) {
         group.bench_with_input("RB Search", &size, |b, &size| {
             b.iter_batched_ref(
                 || {
-                    let mut tree = AVLTree::new();
+                    let mut tree = RedBlackTree::new();
                     for value in 1..=size {
                         tree.insert(value);
                     }
@@ -125,7 +125,7 @@ fn benchmark_rb_tree_fix(c: &mut Criterion) {
                 },
                 |tree| {
                     for value in 1..=(size / 10) {
-                        tree.search(value);
+                        tree.tree.search(value);
                     }
                 },
                 criterion::BatchSize::SmallInput,
@@ -167,3 +167,4 @@ fn benchmark_rb_tree_fix(c: &mut Criterion) {
 
 criterion_group!(benches, benchmark_avl_tree_fix, benchmark_rb_tree_fix);
 criterion_main!(benches);
+
