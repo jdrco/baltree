@@ -9,26 +9,26 @@ use red_black_tree::*;
 fn main() {
     // let mut avl = AVL::new();
     let mut rbt = RedBlack::new();
-    // rbt.insert(8);
-    // rbt.insert(4);
-    // rbt.insert(16);
-    // rbt.insert(12);
-    // rbt.delete(4);
-
-    rbt.insert(18);
-    rbt.insert(15);
+    rbt.insert(8);
+    rbt.insert(4);
     rbt.insert(16);
-    rbt.insert(11);
     rbt.insert(12);
+    rbt.delete(4);
 
-    rbt.insert(17);
-    rbt.insert(19);
-    rbt.insert(10);
-    rbt.insert(20);
-    rbt.insert(13);
-    rbt.insert(14);
-    rbt.insert(9);
-    rbt.delete(10);
+    // rbt.insert(18);
+    // rbt.insert(15);
+    // rbt.insert(16);
+    // rbt.insert(11);
+    // rbt.insert(12);
+
+    // rbt.insert(17);
+    // rbt.insert(19);
+    // rbt.insert(10);
+    // rbt.insert(20);
+    // rbt.insert(13);
+    // rbt.insert(14);
+    // rbt.insert(9);
+    // rbt.delete(10);
     // rbt.delete(17);
 
     // break
@@ -69,6 +69,16 @@ fn main() {
     rbt.delete(12);
     rbt.delete(16);
     rbt.delete(8);
+    
+    rbt.insert(17);
+    rbt.insert(19);
+    rbt.insert(10);
+    rbt.insert(20);
+    rbt.insert(13);
+    rbt.insert(14);
+    rbt.insert(9);
+    // rbt.delete(10);
+    // rbt.delete(17);
 
     println!("-------------------AVL Tree: Begin-------------------");
     println!("Print In-Order: {:?}", rbt.tree.print_inorder());

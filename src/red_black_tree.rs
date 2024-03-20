@@ -333,7 +333,7 @@ pub mod red_black_tree {
                     x = left_child.clone();
                     self.transplant(Some(node_to_be_deleted.clone()), left_child.clone());
                 } else {
-                    let y = self.find_min(right_child.clone());
+                    let y = self.find_max(left_child.clone());
                     u_original_color = y.as_ref().unwrap().borrow().color.clone();
                     x = y.as_ref().unwrap().borrow().right.clone();
 
