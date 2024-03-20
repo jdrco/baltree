@@ -27,12 +27,16 @@ fn main() {
     rbt.insert(20);
     rbt.insert(13);
     rbt.insert(14);
-    rbt.insert(9); // break
+    rbt.insert(9);
+    rbt.delete(10);
+    // rbt.delete(17);
+
+    // break
     // rbt.insert(30); // break
     // rbt.insert(40); // break
     // rbt.insert(50); // break
 
-    rbt.delete(16);
+    // rbt.delete(16);
 
     // avl.insert(4);
     // avl.insert(5);
