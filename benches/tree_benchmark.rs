@@ -19,7 +19,7 @@ fn benchmark_avl_tree(c: &mut Criterion) {
 
         let start_time = Instant::now();
         for value in &search_values {
-            avl.search(*value);
+            avl.tree.search(*value);
         }
         let avl_search_time = start_time.elapsed();
 
@@ -50,7 +50,7 @@ fn benchmark_rb_tree(c: &mut Criterion) {
                 let search_count = size / 10; // Search for 1/10th of the inserted elements
                 for i in 1..=search_count {
                     let key_to_search = i;
-                    let _ = red_black_tree.search(key_to_search);
+                    let _ = red_black_tree.tree.search(key_to_search);
                 }
             })
         });

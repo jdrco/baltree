@@ -6,7 +6,10 @@ fn avl_interface() {
     println!("AVL Tree Created!");
     let mut avl = AVLTree::new();
     loop {
-        println!("Enter command:\n1: Add Key to AVL\n2: Delete Key from AVL\n3: Find the number of leaves\n4: Find the height of tree\n5: Print In-Order Tree\n6: Print Pre-Order Tree\n7: Print Post-Order Tree\n8: Check if Tree is empty\n9: Print Tree Structure\n10: Exit to Main Menu");
+        println!("+------------------------+");
+        println!("| Enter AVL Tree Command |");
+        println!("+------------------------+");
+        println!("1: Add Key to AVL\n2: Delete Key from AVL\n3: Find the number of leaves\n4: Find the height of tree\n5: Print In-Order Tree\n6: Print Pre-Order Tree\n7: Print Post-Order Tree\n8: Check if Tree is empty\n9: Print Tree Structure\n10: Exit to Main Menu");
 
         let mut input = String::new();
         input.clear(); // Clear the input buffer before reading a new value
@@ -21,7 +24,7 @@ fn avl_interface() {
 
                 match key {
                     Ok(k) => {
-                        if avl.search(k).is_some() {
+                        if avl.tree.search(k).is_some() {
                             println!("Key already exists")
                         } else {
                             avl.insert(k);
@@ -39,7 +42,7 @@ fn avl_interface() {
                 
                 match key {
                     Ok(k) => {
-                        if avl.search(k).is_some() {
+                        if avl.tree.search(k).is_some() {
                             avl.delete(k);
                             println!("Key {} deleted.", k);
                         } else {
@@ -68,7 +71,7 @@ fn avl_interface() {
                 println!("Checking if tree is empty: {}", avl.tree.is_empty());
             },
             "9" => {
-                println!("Printing Tree:\n");
+                println!("Printing Tree:");
                 avl.print_structure()
             },
             "10" => {
@@ -84,7 +87,10 @@ fn rb_interface() {
     println!("Red Black Tree Created!");
     let mut rbt = RedBlackTree::new();
     loop {
-        println!("Enter command:\n1: Add Key to RBT\n2: Delete Key from RBT\n3: Find the number of leaves\n4: Find the height of tree\n5: Print In-Order Tree\n6: Print Pre-Order Tree\n7: Print Post-Order Tree\n8: Check if Tree is empty\n9: Print Tree Structure\n10: Exit to Main Menu");
+        println!("+------------------------------+");
+        println!("| Enter Red Black Tree Command |");
+        println!("+------------------------------+");
+        println!("1: Add Key to RBT\n2: Delete Key from RBT\n3: Find the number of leaves\n4: Find the height of tree\n5: Print In-Order Tree\n6: Print Pre-Order Tree\n7: Print Post-Order Tree\n8: Check if Tree is empty\n9: Print Tree Structure\n10: Exit to Main Menu");
 
         let mut input = String::new();
         input.clear(); // Clear the input buffer before reading a new value
@@ -99,7 +105,7 @@ fn rb_interface() {
 
                 match key {
                     Ok(k) => {
-                        if rbt.search(k).is_some() {
+                        if rbt.tree.search(k).is_some() {
                             println!("Key already exists")
                         } else {
                             rbt.insert(k);
@@ -117,7 +123,7 @@ fn rb_interface() {
                 
                 match key {
                     Ok(k) => {
-                        if rbt.search(k).is_some() {
+                        if rbt.tree.search(k).is_some() {
                             // TODO: handle delete
                             // rbt.delete(k);
                             println!("Key {} deleted.", k);
@@ -147,7 +153,7 @@ fn rb_interface() {
                 println!("Checking if tree is empty: {}", rbt.tree.is_empty());
             },
             "9" => {
-                println!("Printing Tree:\n");
+                println!("Printing Tree:");
                 rbt.print_structure()
             },
             "10" => {
@@ -161,7 +167,10 @@ fn rb_interface() {
 
 pub fn user_input_display() {
     loop {
-        println!("Enter command:\n1: Create AVL tree\n2: Create Red Black tree\n3: Quit");
+        println!("+---------------+");
+        println!("| Enter Command |");
+        println!("+---------------+");
+        println!("1: Create AVL tree\n2: Create Red Black tree\n3: Quit");
 
         let mut input = String::new();
         io::stdin().read_line(&mut input).expect("Failed to read line");
