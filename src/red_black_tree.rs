@@ -339,85 +339,137 @@ pub mod red_black_tree {
         }
     
         fn delete_fix(&mut self, x: Option<Tree>, parent: Option<Tree>) {
-            let mut x_color = x.as_ref().map_or(true, |node| node.borrow().color == Some(NodeColor::Black));
-            let mut cur_p = parent;
-            let mut cur_x = x.clone();
-            let mut is_root = cur_p.is_none();
-    
-            while !is_root && x_color {
-                let s = if let Some(cur_p_ref) = &cur_p {
-                    if let Some(cur_x_ref) = &cur_x {
-                        if cur_p_ref.borrow().left.as_ref().map_or(false, |node| node == cur_x_ref) {
-                            cur_p_ref.borrow().right.clone()
+            let mut cur_p: Option<Rc<RefCell<Node>>> = parent.clone();
+            let mut cur_x: Option<Rc<RefCell<Node>>> = x.clone();
+            
+            let mut x_is_root = cur_p.is_none();
+            let mut x_is_black = cur_x.as_ref().map_or(true, |node| node.borrow().color == Some(NodeColor::Black));
+            
+            while !x_is_root && x_is_black {
+                let mut s: Option<Rc<RefCell<Node>>>;
+                if cur_x == cur_p.as_ref().unwrap().borrow().left {
+                    s = cur_p.as_ref().unwrap().borrow().right.clone();
+
+                    // All nodes considered Black when None
+                    if s.is_some() {
+                        let s_is_black =  s.as_ref().map_or(true,|node| node.borrow().color == Some(NodeColor::Black));
+                        if !s_is_black {
+                            s.as_ref().unwrap().borrow_mut().color = Some(NodeColor::Black);
+                            cur_p.as_ref().unwrap().borrow_mut().color = Some(NodeColor::Red);
+                            self.rotate_left(cur_p.as_ref().unwrap().clone());
+                            s = cur_p.as_ref().unwrap().borrow().right.clone();
+                        }
+
+                        // Children of sibling of x
+                        let s_left = s.as_ref().unwrap().borrow().clone().left.clone();
+                        let s_right = s.as_ref().unwrap().borrow().clone().right.clone();
+
+                        // can turn into function
+                        let s_left_is_black = if s_left.is_some() {
+                            s_left.as_ref().unwrap().borrow().clone().color == Some(NodeColor::Black)
                         } else {
-                            cur_p_ref.borrow().left.clone()
-                        }
-                    } else {
-                        None
-                    }
-                } else {
-                    None
-                };
-    
-                if let Some(s) = &s {
-                    if s.borrow().color == Some(NodeColor::Red) {
-                        s.borrow_mut().color = Some(NodeColor::Black);
-                        cur_p.as_ref().unwrap().borrow_mut().color = Some(NodeColor::Red);
-    
-                        if let Some(cur_x_ref) = &cur_x {
-                            if cur_p.as_ref().unwrap().borrow().left.as_ref().map_or(false, |node| node == cur_x_ref) {
-                                self.rotate_right(cur_p.as_ref().unwrap().clone());
-                            } else {
-                                self.rotate_left(cur_p.as_ref().unwrap().clone());
-                            }
-                        }
-    
-                        cur_x = cur_p.clone();
-                        let g = cur_p.as_ref().unwrap().borrow().parent.clone();
-                        cur_p = g.clone();
-                        x_color = cur_x.as_ref().map_or(true, |node| node.borrow().color == Some(NodeColor::Black));
-                    } else {
-                        let s_left = s.borrow().left.clone();
-                        let s_right = s.borrow().right.clone();
-                        let s_left_color = s_left.as_ref().map_or(true, |node| node.borrow().color == Some(NodeColor::Black));
-                        let s_right_color = s_right.as_ref().map_or(true, |node| node.borrow().color == Some(NodeColor::Black));
-    
-                        if s_left_color && s_right_color {
-                            s.borrow_mut().color = Some(NodeColor::Red);
+                            true
+                        };
+
+                        let s_right_is_black = if s_right.is_some() {
+                            s_right.as_ref().unwrap().borrow().clone().color == Some(NodeColor::Black)
+                        } else {
+                            true
+                        };
+                        if s_left_is_black && s_right_is_black {
+                            s.as_ref().unwrap().borrow_mut().color = Some(NodeColor::Red);
                             cur_x = cur_p.clone();
-                            let g = cur_p.as_ref().unwrap().borrow().parent.clone();
+                            
+                            // Update cur_p to hold granparent
+                            let g = cur_p.as_ref().unwrap().borrow().clone().parent.clone();
                             cur_p = g.clone();
-                            x_color = cur_x.as_ref().map_or(true, |node| node.borrow().color == Some(NodeColor::Black));
+
+                            x_is_black = if cur_x.is_some() {
+                                cur_x.as_ref().unwrap().borrow().clone().color == Some(NodeColor::Black)
+                            } else {
+                                true
+                            };
                         } else {
-                            if let Some(right) = &s_right {
-                                if s_left_color {
+                            if s_right_is_black {
+                                if s_left.is_some() {
                                     s_left.as_ref().unwrap().borrow_mut().color = Some(NodeColor::Black);
-                                    s.borrow_mut().color = Some(NodeColor::Red);
-    
-                                    if let Some(cur_x_ref) = &cur_x {
-                                        if cur_p.as_ref().unwrap().borrow().left.as_ref().map_or(false, |node| node == cur_x_ref) {
-                                            self.rotate_right(s.clone());
-                                        } else {
-                                            self.rotate_left(s.clone());
-                                        }
-                                    }
-    
-                                    cur_p = cur_x.clone();
                                 }
-                                s.borrow_mut().color = cur_p.as_ref().unwrap().borrow().color.clone();
-                                cur_p.as_ref().unwrap().borrow_mut().color = Some(NodeColor::Black);
-                                right.borrow_mut().color = Some(NodeColor::Black);
-    
-                                if let Some(cur_x_ref) = &cur_x {
-                                    if cur_p.as_ref().unwrap().borrow().left.as_ref().map_or(false, |node| node == cur_x_ref) {
-                                        self.rotate_right(cur_p.as_ref().unwrap().clone());
-                                    } else {
-                                        self.rotate_left(cur_p.as_ref().unwrap().clone());
-                                    }
-                                }
-    
-                                is_root = true;
+
+                                s.as_ref().unwrap().borrow_mut().color = Some(NodeColor::Red);
+                                
+                                self.rotate_right(s.as_ref().unwrap().clone());
+                                
+                                s = cur_p.as_ref().unwrap().borrow().right.clone();
                             }
+
+                            s.as_ref().unwrap().borrow_mut().color = cur_p.as_ref().unwrap().borrow().color.clone();
+
+                            cur_p.as_ref().unwrap().borrow_mut().color = Some(NodeColor::Black);
+
+                            if s_right.is_some() {
+                                s_right.as_ref().unwrap().borrow_mut().color = Some(NodeColor::Black);
+                            }
+
+                            self.rotate_left(cur_p.as_ref().unwrap().clone());
+
+                            x_is_root = true;
+                        }
+
+                    }
+
+                } else {
+                    s = cur_p.as_ref().unwrap().borrow().left.clone();
+                    if s.is_some() {
+                        if s.as_ref().unwrap().borrow().clone().color == Some(NodeColor::Red) {
+                            // DB's sibling is red
+                            // swap color of p with s
+                            // rotate parent node right
+                            s.as_ref().unwrap().borrow_mut().color = Some(NodeColor::Black);
+                            cur_p.as_ref().unwrap().borrow_mut().color = Some(NodeColor::Red);
+                            self.rotate_right(cur_p.as_ref().unwrap().clone());
+                            s = cur_p.as_ref().unwrap().borrow().left.clone();
+                        }
+                        let s_left = s.as_ref().unwrap().borrow().clone().left.clone();
+                        let s_right = s.as_ref().unwrap().borrow().clone().right.clone();
+
+                        let s_left_color = if s_left.is_some() {
+                            s_left.as_ref().unwrap().borrow().clone().color == Some(NodeColor::Black)
+                        } else {
+                            true
+                        };
+
+                        let s_right_color = if s_right.is_some() {
+                            s_right.as_ref().unwrap().borrow().clone().color == Some(NodeColor::Black)
+                        } else {
+                            true
+                        };
+
+                        if s_left_color && s_right_color {
+                            s.as_ref().unwrap().borrow_mut().color = Some(NodeColor::Red);
+                            cur_x = cur_p.clone();
+                            let g = cur_p.as_ref().unwrap().borrow().clone().parent.clone();
+                            cur_p = g.clone();
+                            x_is_black = if cur_x.is_some() {
+                                cur_x.as_ref().unwrap().borrow().clone().color == Some(NodeColor::Black)
+                            } else {
+                                true
+                            };
+                        } else {
+                            if s_right.is_some() && s_right.as_ref().unwrap().borrow().clone().color == Some(NodeColor::Black) {
+                                if s_left.is_some() {
+                                    s_left.as_ref().unwrap().borrow_mut().color = Some(NodeColor::Black);
+                                    s.as_ref().unwrap().borrow_mut().color = Some(NodeColor::Red);
+                                    self.rotate_left(s.unwrap());
+                                    s = cur_p.as_ref().unwrap().borrow().left.clone();
+                                }
+                            }
+                            s.as_ref().unwrap().borrow_mut().color = cur_p.as_ref().unwrap().borrow().color.clone();
+                            cur_p.as_ref().unwrap().borrow_mut().color = Some(NodeColor::Black);
+                            if s_left.is_some() {
+                                s_left.as_ref().unwrap().borrow_mut().color = Some(NodeColor::Black);
+                            }
+                            self.rotate_right(cur_p.as_ref().unwrap().clone());
+                            x_is_root = true;
                         }
                     }
                 }
