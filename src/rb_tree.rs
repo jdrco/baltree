@@ -246,4 +246,34 @@ impl RedBlack {
         left_child.as_ref().unwrap().borrow_mut().right = Some(parent.clone());
         parent.borrow_mut().parent = left_child.clone();
     }
+
+    pub fn search(&self, key: i32) -> Option<Tree> {
+        let dummy = Node {
+            key,
+            right: None,
+            left: None,
+            parent: None,
+            height: 1,
+            color: Some(NodeColor::Red),
+        };
+        self.search_node(&self.tree.root, &dummy)
+    }
+
+    fn search_node(&self, tree_node: &Option<Tree>, node: &Node) -> Option<Tree> {
+        match tree_node {
+            Some(sub_tree) => {
+                let sub_tree_clone = sub_tree.borrow().clone();
+                if sub_tree_clone.key == node.key {
+                    Some(sub_tree.clone())
+                } else {
+                    if sub_tree_clone.key > node.key {
+                        self.search_node(&sub_tree_clone.left, node)
+                    } else {
+                        self.search_node(&sub_tree_clone.right, node)
+                    }
+                }
+            }
+            None => None,
+        }
+    }
 }
