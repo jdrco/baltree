@@ -10,7 +10,7 @@ fn avl_interface() {
     println!("AVL Tree Created!");
     let mut avl = AVL::new();
     loop {
-        println!("Enter command:\n1: Add Key to AVL\n2: Delete Key from AVL\n3: Find the number of leaves\n4: Find the height of tree\n5: Print In-Order Tree\n6: Check if Tree is empty\n7: Print Tree Structure\n8: Exit to Main Menu");
+        println!("Enter command:\n1: Add Key to AVL\n2: Delete Key from AVL\n3: Find the number of leaves\n4: Find the height of tree\n5: Print In-Order Tree\n6: Print Pre-Order Tree\n7: Print Post-Order Tree\n8: Check if Tree is empty\n9: Print Tree Structure\n10: Exit to Main Menu");
 
         let mut input = String::new();
         input.clear(); // Clear the input buffer before reading a new value
@@ -60,18 +60,22 @@ fn avl_interface() {
                 println!("The height of the tree is: {}", avl.tree.get_height());
             },
             "5" => {
-                println!("The tree when in-order is:\n"); 
-                avl.print_structure();
+                println!("The tree when in-order is: {:?}", avl.tree.print_inorder()); 
             },
             "6" => {
-                println!("Checking if tree is empty: {}", avl.tree.is_empty());
+                println!("The tree when pre-order is: {:?}", avl.tree.print_preorder()); 
             },
             "7" => {
+                println!("The tree when post-order is: {:?}", avl.tree.print_postorder()); 
+            },
+            "8" => {
+                println!("Checking if tree is empty: {}", avl.tree.is_empty());
+            },
+            "9" => {
                 println!("Printing Tree:\n");
                 avl.print_structure()
             },
-            // Implement other cases similarly...
-            "8" => {
+            "10" => {
                 println!("Returning to Main Menu.");
                 break;
             },
@@ -84,7 +88,7 @@ fn rb_interface() {
     println!("Red Black Tree Created!");
     let mut rbt = RedBlack::new();
     loop {
-        println!("Enter command:\n1: Add Key to RBT\n2: Delete Key from RBT\n3: Find the number of leaves\n4: Find the height of tree\n5: Print In-Order Tree\n6: Check if Tree is empty\n7: Print Tree Structure\n8: Exit to Main Menu");
+        println!("Enter command:\n1: Add Key to RBT\n2: Delete Key from RBT\n3: Find the number of leaves\n4: Find the height of tree\n5: Print In-Order Tree\n6: Print Pre-Order Tree\n7: Print Post-Order Tree\n8: Check if Tree is empty\n9: Print Tree Structure\n10: Exit to Main Menu");
 
         let mut input = String::new();
         input.clear(); // Clear the input buffer before reading a new value
@@ -135,18 +139,22 @@ fn rb_interface() {
                 println!("The height of the tree is: {}", rbt.tree.get_height());
             },
             "5" => {
-                println!("The tree when in-order is:\n"); 
-                rbt.print_structure();
+                println!("The tree when in-order is: {:?}", rbt.tree.print_inorder()); 
             },
             "6" => {
-                println!("Checking if tree is empty: {}", rbt.tree.is_empty());
+                println!("The tree when pre-order is: {:?}", rbt.tree.print_preorder()); 
             },
             "7" => {
+                println!("The tree when post-order is: {:?}", rbt.tree.print_postorder()); 
+            },
+            "8" => {
+                println!("Checking if tree is empty: {}", rbt.tree.is_empty());
+            },
+            "9" => {
                 println!("Printing Tree:\n");
                 rbt.print_structure()
             },
-            // Implement other cases similarly...
-            "8" => {
+            "10" => {
                 println!("Returning to Main Menu.");
                 break;
             },
