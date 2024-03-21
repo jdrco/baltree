@@ -223,6 +223,7 @@ fn rb_interface() {
 }
 
 pub fn user_input_display() {
+    println!();
     println!("Welcome to Baltree! An implementation of self balancing trees.");
     println!();
     loop {
