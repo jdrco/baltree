@@ -1,7 +1,8 @@
-use baltree::avl_tree::AVLTree;
+use baltree::{avl_tree::AVLTree};
 use baltree::rb_tree::RedBlackTree;
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use std::time::Instant;
+use binary_search_tree::BinarySearchTree;
 
 fn benchmark_avl_tree(c: &mut Criterion) {
     let tree_sizes = [10_000, 40_000, 70_000, 100_000, 130_000];
@@ -59,6 +60,31 @@ fn benchmark_rb_tree(c: &mut Criterion) {
     group.finish();
 }
 
+fn benchmark_bs_tree(c: &mut Criterion) {
+    let mut group = c.benchmark_group("BST_Insert_and_Search");
+    let tree_sizes = vec![10_000, 40_000, 70_000, 100_000, 130_000];
+    for size in tree_sizes {
+        let mut bst = BinarySearchTree::new();
+
+        // Insert elements into the tree
+        for i in 1..=size {
+            bst.insert_without_dup(i);
+        }
+
+        group.bench_function(format!("Size: {}", size), |b| {
+            b.iter(|| {
+                // Search for a portion of the inserted elements
+                let search_count = size / 10; // Search for 1/10th of the inserted elements
+                for i in 1..=search_count {
+                    let key_to_search = i;
+                    let _ = bst.contains(&key_to_search);
+                }
+            })
+        });
+    }
+
+    group.finish();
+}
 // fn benchmark_red_black_tree(c: &mut Criterion) {
 //     let tree_sizes = [10000, 40000, 70000, 100000, 130000];
 //     for &size in &tree_sizes {
@@ -88,5 +114,5 @@ fn benchmark_rb_tree(c: &mut Criterion) {
 //         }
 //}
 
-criterion_group!(benches, benchmark_avl_tree, benchmark_rb_tree); //, benchmark_red_black_tree);
+criterion_group!(benches, benchmark_bs_tree); //, benchmark_red_black_tree);
 criterion_main!(benches);
