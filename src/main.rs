@@ -67,5 +67,5 @@ fn main() {
     rb.print_structure();
     println!("--------------------Red Black Tree: End--------------------");
     println!();
-    cli::user_input_display();
+    // cli::user_input_display();
 }

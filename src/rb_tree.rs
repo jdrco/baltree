@@ -64,7 +64,8 @@ impl RedBlackTree {
 
     fn insert_fixup(&mut self, curr_node: Tree) -> GenericTree {
         let mut node = curr_node.clone();
-        while curr_node.borrow().parent.clone().is_some() && node.borrow().parent.clone().is_some() {
+        while curr_node.borrow().parent.clone().is_some() && node.borrow().parent.clone().is_some()
+        {
             let mut parent = node.borrow().parent.as_ref().unwrap().clone();
             if parent.borrow().color == Some(NodeColor::Black) {
                 break;
@@ -95,7 +96,8 @@ impl RedBlackTree {
                 Some(uncle) if uncle.borrow().color == Some(NodeColor::Red) => {
                     uncle.borrow_mut().color = Some(NodeColor::Black);
                     parent.borrow_mut().color = Some(NodeColor::Black);
-                    parent.borrow().parent.as_ref().unwrap().borrow_mut().color = Some(NodeColor::Red);
+                    parent.borrow().parent.as_ref().unwrap().borrow_mut().color =
+                        Some(NodeColor::Red);
                     node = parent.borrow().clone().parent.clone().unwrap();
                 }
                 _ => {
@@ -200,72 +202,72 @@ impl RedBlackTree {
         }
     }
 
-    fn rotate_left(node: Tree) {
-        let right_child = node.borrow().right.clone();
+    fn rotate_left(tree_node: Tree) {
+        let cur_parent = tree_node.clone();
+        let right_child = cur_parent
+            .borrow()
+            .right
+            .clone()
+            .expect("Right node must exist");
 
-        match right_child {
-            Some(ref right_child) => {
-                node.borrow_mut().right = right_child.borrow().left.clone();
-                right_child.borrow_mut().parent = node.borrow().clone().parent;
-                if right_child.borrow().left.is_some() {
-                    let right_left_child = right_child.borrow().left.clone();
-                    right_left_child.unwrap().borrow_mut().parent = Some(node.clone());
-                }
-            }
-            None => {
-                node.borrow_mut().right = None;
+        let right_child_left = right_child.borrow().left.clone();
+        cur_parent.borrow_mut().right = right_child_left.clone();
+
+        if let Some(ref right_child_left) = right_child_left {
+            right_child_left.borrow_mut().parent = Some(cur_parent.clone());
+        }
+
+        right_child.borrow_mut().left = Some(cur_parent.clone());
+        right_child.borrow_mut().parent = cur_parent.borrow().parent.clone();
+
+        if let Some(ref grandparent) = cur_parent.borrow().parent {
+            let mut grandparent_borrow = grandparent.borrow_mut();
+            if grandparent_borrow
+                .right
+                .as_ref()
+                .map_or(false, |r| Rc::ptr_eq(r, &cur_parent))
+            {
+                grandparent_borrow.right = Some(right_child.clone());
+            } else {
+                grandparent_borrow.left = Some(right_child.clone());
             }
         }
 
-        let grandparent = node.borrow().clone().parent;
-
-        match grandparent {
-            Some(ref grandparent) => {
-                if grandparent.borrow().clone().key < node.borrow().clone().key {
-                    grandparent.borrow_mut().right = right_child.clone();
-                } else {
-                    grandparent.borrow_mut().left = right_child.clone();
-                }
-            }
-            None => {}
-        }
-
-        right_child.as_ref().unwrap().borrow_mut().left = Some(node.clone());
-        node.borrow_mut().parent = right_child.clone();
+        cur_parent.borrow_mut().parent = Some(right_child.clone());
     }
 
-    fn rotate_right(node: Tree) {
-        let left_child = node.borrow().left.clone();
+    fn rotate_right(tree_node: Tree) {
+        let cur_parent = tree_node.clone();
+        let left_child = cur_parent
+            .borrow()
+            .left
+            .clone()
+            .expect("Left node must exist");
 
-        match left_child {
-            Some(ref left_child) => {
-                node.borrow_mut().left = left_child.borrow().right.clone();
-                left_child.borrow_mut().parent = node.borrow().clone().parent;
-                if left_child.borrow().right.is_some() {
-                    let right_left_child = left_child.borrow().right.clone();
-                    right_left_child.unwrap().borrow_mut().parent = Some(node.clone());
-                }
-            }
-            None => {
-                node.borrow_mut().left = None;
+        let left_child_right = left_child.borrow().right.clone();
+        cur_parent.borrow_mut().left = left_child_right.clone();
+
+        if let Some(ref left_child_right) = left_child_right {
+            left_child_right.borrow_mut().parent = Some(cur_parent.clone());
+        }
+
+        left_child.borrow_mut().right = Some(cur_parent.clone());
+        left_child.borrow_mut().parent = cur_parent.borrow().parent.clone();
+
+        if let Some(ref grandparent) = cur_parent.borrow().parent {
+            let mut grandparent_borrow = grandparent.borrow_mut();
+            if grandparent_borrow
+                .left
+                .as_ref()
+                .map_or(false, |l| Rc::ptr_eq(l, &cur_parent))
+            {
+                grandparent_borrow.left = Some(left_child.clone());
+            } else {
+                grandparent_borrow.right = Some(left_child.clone());
             }
         }
 
-        let grandparent = node.borrow().clone().parent;
-
-        match grandparent {
-            Some(grandparent) => {
-                if grandparent.borrow().clone().key < node.borrow().clone().key {
-                    grandparent.borrow_mut().right = left_child.clone();
-                } else {
-                    grandparent.borrow_mut().left = left_child.clone();
-                }
-            }
-            None => {}
-        }
-
-        left_child.as_ref().unwrap().borrow_mut().right = Some(node.clone());
-        node.borrow_mut().parent = left_child.clone();
+        cur_parent.borrow_mut().parent = Some(left_child.clone());
     }
 
     pub fn delete(&mut self, key: i32) {
