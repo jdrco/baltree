@@ -64,8 +64,8 @@ impl RedBlackTree {
 
     fn insert_fixup(&mut self, curr_node: Tree) -> GenericTree {
         let mut node = curr_node.clone();
-        while curr_node.borrow().parent.clone().is_some() {
-            let mut parent = curr_node.borrow().parent.as_ref().unwrap().clone();
+        while curr_node.borrow().parent.clone().is_some() && node.borrow().parent.clone().is_some() {
+            let mut parent = node.borrow().parent.as_ref().unwrap().clone();
             if parent.borrow().color == Some(NodeColor::Black) {
                 break;
             }
@@ -81,7 +81,7 @@ impl RedBlackTree {
                 false // If the grandparent does not exist, the parent cannot be the left child
             };
 
-            let uncle = if let Some(grandparent_ref) = grandparent.as_ref() {
+            let uncle_node = if let Some(grandparent_ref) = grandparent.as_ref() {
                 if is_parent_left {
                     grandparent_ref.borrow().right.clone()
                 } else {
@@ -91,12 +91,12 @@ impl RedBlackTree {
                 None
             };
 
-            match uncle {
-                Some(uncle_node) if uncle_node.borrow().color == Some(NodeColor::Red) => {
+            match uncle_node {
+                Some(uncle) if uncle.borrow().color == Some(NodeColor::Red) => {
+                    uncle.borrow_mut().color = Some(NodeColor::Black);
                     parent.borrow_mut().color = Some(NodeColor::Black);
-                    uncle_node.borrow_mut().color = Some(NodeColor::Black);
-                    grandparent.as_ref().unwrap().borrow_mut().color = Some(NodeColor::Red);
-                    node = grandparent.unwrap();
+                    parent.borrow().parent.as_ref().unwrap().borrow_mut().color = Some(NodeColor::Red);
+                    node = parent.borrow().clone().parent.clone().unwrap();
                 }
                 _ => {
                     if is_parent_left {

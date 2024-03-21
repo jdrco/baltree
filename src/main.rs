@@ -55,17 +55,14 @@ fn main() {
     rb.insert(9);
     rb.insert(30);
 
-    // rb.insert(8);
-    // rb.insert(16);
-    // rb.insert(4);
-
     println!("Print In-Order: {:?}", rb.tree.print_inorder());
     println!("Count Leaves: {:?}", rb.tree.count_leaves());
     println!("Height: {}", rb.tree.get_height());
     println!("Is Empty: {}", rb.tree.is_empty());
     println!("Print Tree Structure:");
     rb.print_structure();
-    rb.delete(20);
+    rb.delete(30);
+    rb.delete(16);
     println!("Print Tree Structure (After Delete):");
     rb.print_structure();
     println!("--------------------Red Black Tree: End--------------------");
