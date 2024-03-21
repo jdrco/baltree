@@ -1,15 +1,15 @@
-use crate::bs_tree::{BinarySearchTree, GenericTree, Node, Tree};
+use crate::common_tree::{CommonTree, GenericTree, Node, Tree};
 use std::cell::RefCell;
 use std::rc::Rc;
 
 pub struct AVLTree {
-    pub tree: BinarySearchTree,
+    pub tree: CommonTree,
 }
 
 impl AVLTree {
     pub fn new() -> Self {
         AVLTree {
-            tree: BinarySearchTree::new(),
+            tree: CommonTree::new(),
         }
     }
 
@@ -47,16 +47,16 @@ impl AVLTree {
     }
 
     fn balance(node: Tree) -> Tree {
-        BinarySearchTree::update_height(&node);
-        let diff = BinarySearchTree::get_balance(&node);
+        CommonTree::update_height(&node);
+        let diff = CommonTree::get_balance(&node);
         if diff > 1 {
-            if BinarySearchTree::get_balance(&node.borrow().left.as_ref().unwrap()) < 0 {
+            if CommonTree::get_balance(&node.borrow().left.as_ref().unwrap()) < 0 {
                 let left = node.borrow_mut().left.take().unwrap();
                 node.borrow_mut().left = Some(AVLTree::rotate_left(left));
             }
             return AVLTree::rotate_right(node);
         } else if diff < -1 {
-            if BinarySearchTree::get_balance(&node.borrow().right.as_ref().unwrap()) > 0 {
+            if CommonTree::get_balance(&node.borrow().right.as_ref().unwrap()) > 0 {
                 let right = node.borrow_mut().right.take().unwrap();
                 node.borrow_mut().right = Some(AVLTree::rotate_right(right));
             }
@@ -96,8 +96,8 @@ impl AVLTree {
             }
         }
 
-        BinarySearchTree::update_height(&node);
-        BinarySearchTree::update_height(&right_node);
+        CommonTree::update_height(&node);
+        CommonTree::update_height(&right_node);
 
         right_node
     }
@@ -133,8 +133,8 @@ impl AVLTree {
             }
         }
 
-        BinarySearchTree::update_height(&node);
-        BinarySearchTree::update_height(&left_node);
+        CommonTree::update_height(&node);
+        CommonTree::update_height(&left_node);
 
         left_node
     }

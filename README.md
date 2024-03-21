@@ -25,7 +25,7 @@ The project setup is found in the `src/` directory in the root of the project.
 
 - `rb_tree.rs`: Contains all the functionality regarding the creation of the Red Black Trees. Serves as the main module for the Red Black Tree.
 
-- `bs_tree.rs`: Contains the logic responsible for a common/shared methods among both trees as they are both technically Binary Search Trees.
+- `common_tree.rs`: Contains the logic responsible for a common/shared methods among both trees.
 
 - `lib.rs`: Contains the imports that help centralize the connection of all modules.
 

@@ -1,15 +1,15 @@
-use crate::bs_tree::{BinarySearchTree, GenericTree, Node, NodeColor, Tree};
+use crate::common_tree::{CommonTree, GenericTree, Node, NodeColor, Tree};
 use std::cell::RefCell;
 use std::rc::Rc;
 
 pub struct RedBlackTree {
-    pub tree: BinarySearchTree,
+    pub tree: CommonTree,
 }
 
 impl RedBlackTree {
     pub fn new() -> Self {
         RedBlackTree {
-            tree: BinarySearchTree::new(),
+            tree: CommonTree::new(),
         }
     }
 

@@ -1,5 +1,5 @@
 mod avl_tree;
-mod bs_tree;
+mod common_tree;
 mod cli;
 mod rb_tree;
 

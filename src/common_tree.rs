@@ -6,7 +6,7 @@ use std::rc::Rc;
 pub type Tree = Rc<RefCell<Node>>;
 pub type GenericTree = Option<Tree>;
 
-pub struct BinarySearchTree {
+pub struct CommonTree {
     pub root: GenericTree,
 }
 
@@ -26,9 +26,9 @@ pub struct Node {
     pub color: Option<NodeColor>,
 }
 
-impl BinarySearchTree {
+impl CommonTree {
     pub fn new() -> Self {
-        BinarySearchTree { root: None }
+        CommonTree { root: None }
     }
 
     pub fn is_empty(&self) -> bool {
