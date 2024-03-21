@@ -84,7 +84,7 @@ fn avl_interface() {
             }
             "9" => {
                 println!("Printing Tree:");
-                avl.print_structure()
+                avl.tree.print_structure()
             }
             "10" => {
                 println!("Returning to Main Menu.");
@@ -178,7 +178,7 @@ fn rb_interface() {
             }
             "9" => {
                 println!("Printing Tree:");
-                rbt.print_structure()
+                rbt.tree.print_structure()
             }
             "10" => {
                 println!("Returning to Main Menu.");

@@ -1,5 +1,4 @@
 use crate::bs_tree::{BinarySearchTree, GenericTree, Node, NodeColor, Tree};
-use colored::*;
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -165,40 +164,6 @@ impl RedBlackTree {
     fn ensure_black_root(&mut self) {
         if let Some(ref root) = self.tree.root {
             root.borrow_mut().color = Some(NodeColor::Black);
-        }
-    }
-
-    pub fn print_structure(&self) {
-        self.print_helper(&self.tree.root, 0, "Root: ");
-    }
-
-    fn print_helper(&self, node: &GenericTree, space: usize, prefix: &str) {
-        if node.is_none() {
-            return;
-        }
-        let space = space + 10;
-
-        if let Some(ref right) = node.as_ref().unwrap().borrow().right {
-            self.print_helper(&Some(right.clone()), space, "R: ");
-        }
-
-        for _ in 10..space {
-            print!(" ");
-        }
-        // Modify this line to include the color of the node
-        let node_ref = node.as_ref().unwrap().borrow();
-        match node_ref.color {
-            Some(NodeColor::Red) => {
-                println!("{}{}", prefix.red(), node_ref.key.to_string().red())
-            }
-            Some(NodeColor::Black) => {
-                println!("{}{}", prefix.black(), node_ref.key.to_string().black())
-            }
-            None => {} // Handles the case where the color is None
-        };
-
-        if let Some(ref left) = node_ref.left {
-            self.print_helper(&Some(left.clone()), space, "L: ");
         }
     }
 

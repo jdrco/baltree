@@ -33,10 +33,10 @@ fn main() {
     println!("Height: {}", avl.tree.get_height());
     println!("Is Empty: {}", avl.tree.is_empty());
     println!("Print Tree Structure:");
-    avl.print_structure();
+    avl.tree.print_structure();
     avl.delete(5);
     println!("Print Tree Structure (After Delete 5):");
-    avl.print_structure();
+    avl.tree.print_structure();
     println!("--------------------AVL Tree: End--------------------");
 
     println!("-------------------Red Black Tree: Begin-------------------");
@@ -60,12 +60,12 @@ fn main() {
     println!("Height: {}", rb.tree.get_height());
     println!("Is Empty: {}", rb.tree.is_empty());
     println!("Print Tree Structure:");
-    rb.print_structure();
+    rb.tree.print_structure();
     rb.delete(30);
     rb.delete(16);
     println!("Print Tree Structure (After Delete):");
-    rb.print_structure();
+    rb.tree.print_structure();
     println!("--------------------Red Black Tree: End--------------------");
     println!();
-    // cli::user_input_display();
+    cli::user_input_display();
 }

@@ -1,6 +1,7 @@
 use std::cell::RefCell;
 use std::cmp::max;
 use std::rc::Rc;
+use colored::*;
 
 pub type Tree = Rc<RefCell<Node>>;
 pub type GenericTree = Option<Tree>;
@@ -147,5 +148,42 @@ impl BinarySearchTree {
             }
         }
         None
+    }
+
+
+    pub fn print_structure(&self) {
+        self.print_helper(&self.root, 0, "Root: ");
+    }
+
+    fn print_helper(&self, node: &GenericTree, space: usize, prefix: &str) {
+        if node.is_none() {
+            return;
+        }
+        let space = space + 10;
+
+        if let Some(ref right) = node.as_ref().unwrap().borrow().right {
+            self.print_helper(&Some(right.clone()), space, "R: ");
+        }
+
+        for _ in 10..space {
+            print!(" ");
+        }
+        // Modify this line to include the color of the node
+        let node_ref = node.as_ref().unwrap().borrow();
+        match node_ref.color {
+            Some(NodeColor::Red) => {
+                println!("{}{}", prefix.red(), node_ref.key.to_string().red())
+            }
+            Some(NodeColor::Black) => {
+                println!("{}{}", prefix.black(), node_ref.key.to_string().black())
+            }
+            None => {
+                println!("{}{}", prefix, node_ref.key.to_string())
+            }
+        };
+
+        if let Some(ref left) = node_ref.left {
+            self.print_helper(&Some(left.clone()), space, "L: ");
+        }
     }
 }
