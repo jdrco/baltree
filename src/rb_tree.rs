@@ -61,10 +61,9 @@ impl RedBlackTree {
         self.ensure_black_root();
     }
 
-    fn insert_fixup(&mut self, curr_node: Tree) -> GenericTree {
-        let mut node = curr_node.clone();
-        while curr_node.borrow().parent.clone().is_some() && node.borrow().parent.clone().is_some()
-        {
+    fn insert_fixup(&mut self, curr: Tree) -> GenericTree {
+        let mut node = curr.clone();
+        while curr.borrow().parent.clone().is_some() && node.borrow().parent.clone().is_some() {
             let mut parent = node.borrow().parent.as_ref().unwrap().clone();
             if parent.borrow().color == Some(NodeColor::Black) {
                 break;
