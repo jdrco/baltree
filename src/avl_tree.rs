@@ -1,4 +1,4 @@
-use crate::bs_tree::{BinarySearchTree, GenericTree, Node, NodeColor, Tree};
+use crate::bs_tree::{BinarySearchTree, GenericTree, Node, Tree};
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -20,7 +20,7 @@ impl AVLTree {
             right: None,
             parent: None,
             height: 1,
-            color: Some(NodeColor::Black), // Default color for AVLTree nodes
+            color: None, // Default color for AVLTree nodes
         }));
         self.tree.root = Some(AVLTree::insert_node(self.tree.root.clone(), new_node));
     }
@@ -176,30 +176,6 @@ impl AVLTree {
         match &node.borrow().left {
             Some(left) => Self::min_value_node(left),
             None => node.clone(),
-        }
-    }
-
-    pub fn print_structure(&self) {
-        self.print_helper(&self.tree.root, 0, "Root: ");
-    }
-
-    fn print_helper(&self, node: &GenericTree, space: usize, prefix: &str) {
-        if node.is_none() {
-            return;
-        }
-        let space = space + 10;
-
-        if let Some(ref right) = node.as_ref().unwrap().borrow().right {
-            self.print_helper(&Some(right.clone()), space, "Right: ");
-        }
-
-        for _ in 10..space {
-            print!(" ");
-        }
-        println!("{}{}", prefix, node.as_ref().unwrap().borrow().key);
-
-        if let Some(ref left) = node.as_ref().unwrap().borrow().left {
-            self.print_helper(&Some(left.clone()), space, "Left: ");
         }
     }
 }

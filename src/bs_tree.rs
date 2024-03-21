@@ -1,3 +1,4 @@
+use colored::*;
 use std::cell::RefCell;
 use std::cmp::max;
 use std::rc::Rc;
@@ -135,32 +136,53 @@ impl BinarySearchTree {
     }
 
     pub fn search(&self, key: i32) -> Option<Tree> {
-        let dummy = Node {
-            key,
-            right: None,
-            left: None,
-            parent: None,
-            height: 1,
-            color: Some(NodeColor::Red),
-        };
-        self.search_node(&self.root, &dummy)
+        let mut current_node = self.root.clone();
+        while let Some(node) = current_node {
+            let node_ref = node.borrow();
+            if node_ref.key == key {
+                return Some(node.clone());
+            } else if key < node_ref.key {
+                current_node = node_ref.left.clone();
+            } else {
+                current_node = node_ref.right.clone();
+            }
+        }
+        None
     }
 
-    fn search_node(&self, tree_node: &Option<Tree>, node: &Node) -> Option<Tree> {
-        match tree_node {
-            Some(sub_tree) => {
-                let sub_tree_clone = sub_tree.borrow().clone();
-                if sub_tree_clone.key == node.key {
-                    Some(sub_tree.clone())
-                } else {
-                    if sub_tree_clone.key > node.key {
-                        self.search_node(&sub_tree_clone.left, node)
-                    } else {
-                        self.search_node(&sub_tree_clone.right, node)
-                    }
-                }
+    pub fn print_structure(&self) {
+        self.print_helper(&self.root, 0, "Root: ");
+    }
+
+    fn print_helper(&self, node: &GenericTree, space: usize, prefix: &str) {
+        if node.is_none() {
+            return;
+        }
+        let space = space + 10;
+
+        if let Some(ref right) = node.as_ref().unwrap().borrow().right {
+            self.print_helper(&Some(right.clone()), space, "R: ");
+        }
+
+        for _ in 10..space {
+            print!(" ");
+        }
+        // Modify this line to include the color of the node
+        let node_ref = node.as_ref().unwrap().borrow();
+        match node_ref.color {
+            Some(NodeColor::Red) => {
+                println!("{}{}", prefix.red(), node_ref.key.to_string().red())
             }
-            None => None,
+            Some(NodeColor::Black) => {
+                println!("{}{}", prefix.black(), node_ref.key.to_string().black())
+            }
+            None => {
+                println!("{}{}", prefix, node_ref.key.to_string())
+            }
+        };
+
+        if let Some(ref left) = node_ref.left {
+            self.print_helper(&Some(left.clone()), space, "L: ");
         }
     }
 }

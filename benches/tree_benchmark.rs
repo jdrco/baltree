@@ -4,60 +4,135 @@ use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use std::time::Instant;
 use binary_search_tree::BinarySearchTree;
 
-fn benchmark_avl_tree(c: &mut Criterion) {
+// fn benchmark_avl_tree(c: &mut Criterion) {
+//     let tree_sizes = [10_000, 40_000, 70_000, 100_000, 130_000];
+//     for &size in &tree_sizes {
+//         let values: Vec<i32> = (1..=size).collect();
+//         let search_values: Vec<i32> = (1..=size / 10).collect();
+
+//         let mut avl = AVLTree::new();
+
+//         let start_time = Instant::now();
+//         for value in &values {
+//             avl.insert(*value);
+//         }
+//         let avl_insert_time = start_time.elapsed();
+//         let start_time = Instant::now();
+//         for value in &search_values {
+//             avl.search(*value);
+//         }
+//         let avl_search_time = start_time.elapsed();
+
+//         // Record AVL benchmark results...
+//         c.benchmark_group(format!("Tree Size {}", size))
+//             .bench_function("AVL Insert", |b| b.iter(|| black_box(avl_insert_time)));
+
+//         c.benchmark_group(format!("Tree Size {}", size))
+//             .bench_function("AVL Search", |b| b.iter(|| black_box(avl_search_time)));
+//     }
+// }
+
+fn benchmark_avl_tree_fix(c: &mut Criterion) {
     let tree_sizes = [10_000, 40_000, 70_000, 100_000, 130_000];
+
     for &size in &tree_sizes {
-        let values: Vec<i32> = (1..=size).collect();
-        let search_values: Vec<i32> = (1..=size / 10).collect();
+        let mut group = c.benchmark_group(format!("AVL Tree Size {}", size));
+        group.measurement_time(std::time::Duration::new(10, 0));
 
-        let mut avl = AVLTree::new();
+        group.bench_function("AVL Insert", |b| {
+            b.iter(|| {
+                let mut tree = AVLTree::new();
+                for value in 1..=size {
+                    tree.insert(value);
+                }
+            });
+        });
 
-        let start_time = Instant::now();
-        for value in &values {
-            avl.insert(*value);
-        }
-        let avl_insert_time = start_time.elapsed();
+        group.bench_with_input("AVL Search", &size, |b, &size| {
+            b.iter_batched_ref(
+                || {
+                    let mut tree = AVLTree::new();
+                    for value in 1..=size {
+                        tree.insert(value);
+                    }
+                    tree
+                },
+                |tree| {
+                    for value in 1..=(size / 10) {
+                        tree.tree.search(value);
+                    }
+                },
+                criterion::BatchSize::SmallInput,
+            );
+        });
 
-        let start_time = Instant::now();
-        for value in &search_values {
-            avl.tree.search(*value);
-        }
-        let avl_search_time = start_time.elapsed();
-
-        // Record AVL benchmark results...
-        c.benchmark_group(format!("Tree Size {}", size))
-            .bench_function("AVL Insert", |b| b.iter(|| black_box(avl_insert_time)));
-
-        c.benchmark_group(format!("Tree Size {}", size))
-            .bench_function("AVL Search", |b| b.iter(|| black_box(avl_search_time)));
+        group.finish();
     }
 }
 
-fn benchmark_rb_tree(c: &mut Criterion) {
-    let mut group = c.benchmark_group("RB_Insert_and_Search");
+// fn benchmark_rb_tree(c: &mut Criterion) {
+//     let mut group = c.benchmark_group("RB_Insert_and_Search");
 
-    let tree_sizes = vec![10_000, 40_000, 70_000, 100_000, 130_000];
-    for size in tree_sizes {
-        let mut red_black_tree = RedBlackTree::new();
+//     let tree_sizes = vec![10_000, 40_000, 70_000, 100_000, 130_000];
+//     for size in tree_sizes {
+//         let mut red_black_tree = RedBlackTree::new();
 
-        // Insert elements into the tree
-        for i in 1..=size {
-            red_black_tree.insert(i);
-        }
+//         // Insert elements into the tree
+//         for i in 1..=size {
+//             red_black_tree.insert(i);
+//         }
 
-        group.bench_function(format!("Size: {}", size), |b| {
+//         group.bench_function(format!("Size: {}", size), |b| {
+//             b.iter(|| {
+//                 // Search for a portion of the inserted elements
+//                 let search_count = size / 10; // Search for 1/10th of the inserted elements
+//                 for i in 1..=search_count {
+//                     let key_to_search = i;
+//                     let _ = red_black_tree.search(key_to_search);
+//                 }
+//             })
+//         });
+//     }
+
+//     group.finish();
+// }
+
+fn benchmark_rb_tree_fix(c: &mut Criterion) {
+    let tree_sizes = [10_000, 40_000, 70_000, 100_000, 130_000];
+
+    for &size in &tree_sizes {
+        let mut group = c.benchmark_group(format!("RB Tree Size {}", size));
+        group.measurement_time(std::time::Duration::new(70, 0));
+
+        group.bench_function("RB Insert", |b| {
             b.iter(|| {
-                // Search for a portion of the inserted elements
-                let search_count = size / 10; // Search for 1/10th of the inserted elements
-                for i in 1..=search_count {
-                    let key_to_search = i;
-                    let _ = red_black_tree.tree.search(key_to_search);
+                let mut tree = RedBlackTree::new();
+                for value in 1..=size {
+                    tree.insert(value);
                 }
-            })
+            });
         });
-    }
 
-    group.finish();
+        group.bench_with_input("RB Search", &size, |b, &size| {
+            b.iter_batched_ref(
+                || {
+                    let mut tree = RedBlackTree::new();
+                    for value in 1..=size {
+                        tree.insert(value);
+                    }
+                    tree
+                },
+                |tree| {
+                    for value in 1..=(size / 10) {
+                        tree.tree.search(value);
+                    }
+                },
+                criterion::BatchSize::SmallInput,
+            );
+        });
+
+        group.finish();
+    }
 }
 
 fn benchmark_bs_tree(c: &mut Criterion) {
@@ -114,5 +189,6 @@ fn benchmark_bs_tree(c: &mut Criterion) {
 //         }
 //}
 
-criterion_group!(benches, benchmark_bs_tree); //, benchmark_red_black_tree);
+// criterion_group!(benches, benchmark_bs_tree, benchmark_avl_tree_fix, benchmark_rb_tree_fix);
+criterion_group!(benches, benchmark_bs_tree);
 criterion_main!(benches);
