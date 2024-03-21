@@ -53,7 +53,7 @@ fn avl_interface() {
                 } else {
                     for k in keys {
                         if avl.tree.search(k).is_some() {
-                            println!("Key {} already exists", k);
+                            println!("Key {} already exists.", k);
                         } else {
                             avl.insert(k);
                             println!("Key {} inserted.", k);
@@ -78,7 +78,7 @@ fn avl_interface() {
                             avl.delete(k);
                             println!("Key {} deleted.", k);
                         } else {
-                            println!("Key does not exist");
+                            println!("Key does not exist.");
                         }
                     }
                     Err(_) => println!("Please enter a valid integer."),
@@ -153,7 +153,7 @@ fn rb_interface() {
                 } else {
                     for k in keys {
                         if rbt.tree.search(k).is_some() {
-                            println!("Key {} already exists", k);
+                            println!("Key {} already exists.", k);
                         } else {
                             rbt.insert(k);
                             println!("Key {} inserted.", k);
@@ -179,7 +179,7 @@ fn rb_interface() {
                             rbt.delete(k);
                             println!("Key {} deleted.", k);
                         } else {
-                            println!("Key does not exist");
+                            println!("Key does not exist.");
                         }
                     }
                     Err(_) => println!("Please enter a valid integer."),
