@@ -1,3 +1,4 @@
+use colored::*;
 use std::cell::RefCell;
 use std::cmp::max;
 use std::rc::Rc;
@@ -5,8 +6,14 @@ use std::rc::Rc;
 pub type Tree = Rc<RefCell<Node>>;
 pub type GenericTree = Option<Tree>;
 
-pub struct BalancingTree {
+pub struct BinarySearchTree {
     pub root: GenericTree,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub enum NodeColor {
+    Red,
+    Black,
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -15,13 +22,13 @@ pub struct Node {
     pub left: GenericTree,
     pub right: GenericTree,
     pub parent: GenericTree,
-    pub height: i32, // For AVL. RBT can ignore or use for extra calculations if needed.
-                     // color: Color, // For RBT
+    pub height: i32,
+    pub color: Option<NodeColor>,
 }
 
-impl BalancingTree {
+impl BinarySearchTree {
     pub fn new() -> Self {
-        BalancingTree { root: None }
+        BinarySearchTree { root: None }
     }
 
     pub fn is_empty(&self) -> bool {
@@ -42,78 +49,32 @@ impl BalancingTree {
         }
     }
 
-    pub fn rotate_left(node: Tree) -> Tree {
-        let right_node = node
-            .borrow_mut()
-            .right
-            .take()
-            .expect("Right node must exist for rotation");
-        let right_left = right_node.borrow_mut().left.take();
-
-        let node_parent = node.borrow().parent.clone();
-
-        node.borrow_mut().right = right_left.clone();
-
-        if let Some(right_left) = right_left {
-            right_left.borrow_mut().parent = Some(node.clone());
-        }
-
-        right_node.borrow_mut().left = Some(node.clone());
-        right_node.borrow_mut().parent = node_parent.clone();
-
-        // Parent's pointers
-        if let Some(parent) = node_parent {
-            let mut parent_borrow_mut = parent.borrow_mut();
-            if let Some(ref parent_right) = parent_borrow_mut.right {
-                if Rc::ptr_eq(&node, parent_right) {
-                    parent_borrow_mut.right = Some(right_node.clone());
-                }
-            } else {
-                parent_borrow_mut.left = Some(right_node.clone());
-            }
-        }
-
-        Self::update_height(&node);
-        Self::update_height(&right_node);
-
-        right_node
+    pub fn print_postorder(&self) -> Vec<i32> {
+        let mut result = Vec::new();
+        Self::postorder_traversal(&self.root, &mut result);
+        result
     }
 
-    pub fn rotate_right(node: Tree) -> Tree {
-        let left_node = node
-            .borrow_mut()
-            .left
-            .take()
-            .expect("Left node must exist for rotation");
-        let left_right = left_node.borrow_mut().right.take();
-
-        let node_parent = node.borrow().parent.clone();
-
-        node.borrow_mut().left = left_right.clone();
-
-        if let Some(left_right) = left_right {
-            left_right.borrow_mut().parent = Some(node.clone());
+    fn postorder_traversal(node: &GenericTree, result: &mut Vec<i32>) {
+        if let Some(ref node) = node {
+            Self::postorder_traversal(&node.borrow().left, result);
+            Self::postorder_traversal(&node.borrow().right, result);
+            result.push(node.borrow().key);
         }
+    }
 
-        left_node.borrow_mut().right = Some(node.clone());
-        left_node.borrow_mut().parent = node_parent.clone();
+    pub fn print_preorder(&self) -> Vec<i32> {
+        let mut result = Vec::new();
+        Self::preorder_traversal(&self.root, &mut result);
+        result
+    }
 
-        // Parent's pointers
-        if let Some(parent) = node_parent {
-            let mut parent_borrow_mut = parent.borrow_mut();
-            if let Some(ref parent_left) = parent_borrow_mut.left {
-                if Rc::ptr_eq(&node, parent_left) {
-                    parent_borrow_mut.left = Some(left_node.clone());
-                }
-            } else {
-                parent_borrow_mut.right = Some(left_node.clone());
-            }
+    fn preorder_traversal(node: &GenericTree, result: &mut Vec<i32>) {
+        if let Some(ref node) = node {
+            result.push(node.borrow().key);
+            Self::preorder_traversal(&node.borrow().left, result);
+            Self::preorder_traversal(&node.borrow().right, result);
         }
-
-        Self::update_height(&node);
-        Self::update_height(&left_node);
-
-        left_node
     }
 
     pub fn get_height(&self) -> i32 {
@@ -171,6 +132,57 @@ impl BalancingTree {
                 }
             }
             None => 0, // If the node is None, it's not a leaf
+        }
+    }
+
+    pub fn search(&self, key: i32) -> Option<Tree> {
+        let mut current_node = self.root.clone();
+        while let Some(node) = current_node {
+            let node_ref = node.borrow();
+            if node_ref.key == key {
+                return Some(node.clone());
+            } else if key < node_ref.key {
+                current_node = node_ref.left.clone();
+            } else {
+                current_node = node_ref.right.clone();
+            }
+        }
+        None
+    }
+
+    pub fn print_structure(&self) {
+        self.print_helper(&self.root, 0, "Root: ");
+    }
+
+    fn print_helper(&self, node: &GenericTree, space: usize, prefix: &str) {
+        if node.is_none() {
+            return;
+        }
+        let space = space + 10;
+
+        if let Some(ref right) = node.as_ref().unwrap().borrow().right {
+            self.print_helper(&Some(right.clone()), space, "R: ");
+        }
+
+        for _ in 10..space {
+            print!(" ");
+        }
+        // Modify this line to include the color of the node
+        let node_ref = node.as_ref().unwrap().borrow();
+        match node_ref.color {
+            Some(NodeColor::Red) => {
+                println!("{}{}", prefix.red(), node_ref.key.to_string().red())
+            }
+            Some(NodeColor::Black) => {
+                println!("{}{}", prefix.black(), node_ref.key.to_string().black())
+            }
+            None => {
+                println!("{}{}", prefix, node_ref.key.to_string())
+            }
+        };
+
+        if let Some(ref left) = node_ref.left {
+            self.print_helper(&Some(left.clone()), space, "L: ");
         }
     }
 }

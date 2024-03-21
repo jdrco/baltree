@@ -1,15 +1,15 @@
-use crate::balancing_tree::{BalancingTree, GenericTree, Node, Tree};
+use crate::bs_tree::{BinarySearchTree, GenericTree, Node, Tree};
 use std::cell::RefCell;
 use std::rc::Rc;
 
-pub struct AVL {
-    pub tree: BalancingTree,
+pub struct AVLTree {
+    pub tree: BinarySearchTree,
 }
 
-impl AVL {
+impl AVLTree {
     pub fn new() -> Self {
-        AVL {
-            tree: BalancingTree::new(),
+        AVLTree {
+            tree: BinarySearchTree::new(),
         }
     }
 
@@ -20,8 +20,9 @@ impl AVL {
             right: None,
             parent: None,
             height: 1,
+            color: None, // Default color for AVLTree nodes
         }));
-        self.tree.root = Some(AVL::insert_node(self.tree.root.clone(), new_node));
+        self.tree.root = Some(AVLTree::insert_node(self.tree.root.clone(), new_node));
     }
 
     fn insert_node(root: GenericTree, new_node: Tree) -> Tree {
@@ -32,36 +33,110 @@ impl AVL {
                     let temp_right = node.borrow().right.clone();
 
                     if new_node.borrow().key < node.borrow().key {
-                        let left_tree = AVL::insert_node(temp_left, new_node.clone());
+                        let left_tree = AVLTree::insert_node(temp_left, new_node.clone());
                         node.borrow_mut().left = Some(left_tree);
                     } else {
-                        let right_tree = AVL::insert_node(temp_right, new_node.clone());
+                        let right_tree = AVLTree::insert_node(temp_right, new_node.clone());
                         node.borrow_mut().right = Some(right_tree);
                     }
                 }
-                AVL::balance(node)
+                AVLTree::balance(node)
             }
             None => new_node,
         }
     }
 
     fn balance(node: Tree) -> Tree {
-        BalancingTree::update_height(&node);
-        let diff = BalancingTree::get_balance(&node);
+        BinarySearchTree::update_height(&node);
+        let diff = BinarySearchTree::get_balance(&node);
         if diff > 1 {
-            if BalancingTree::get_balance(&node.borrow().left.as_ref().unwrap()) < 0 {
+            if BinarySearchTree::get_balance(&node.borrow().left.as_ref().unwrap()) < 0 {
                 let left = node.borrow_mut().left.take().unwrap();
-                node.borrow_mut().left = Some(BalancingTree::rotate_left(left));
+                node.borrow_mut().left = Some(AVLTree::rotate_left(left));
             }
-            return BalancingTree::rotate_right(node);
+            return AVLTree::rotate_right(node);
         } else if diff < -1 {
-            if BalancingTree::get_balance(&node.borrow().right.as_ref().unwrap()) > 0 {
+            if BinarySearchTree::get_balance(&node.borrow().right.as_ref().unwrap()) > 0 {
                 let right = node.borrow_mut().right.take().unwrap();
-                node.borrow_mut().right = Some(BalancingTree::rotate_right(right));
+                node.borrow_mut().right = Some(AVLTree::rotate_right(right));
             }
-            return BalancingTree::rotate_left(node);
+            return AVLTree::rotate_left(node);
         }
         node
+    }
+
+    pub fn rotate_left(node: Tree) -> Tree {
+        let right_node = node
+            .borrow_mut()
+            .right
+            .take()
+            .expect("Right node must exist for rotation");
+        let right_left = right_node.borrow_mut().left.take();
+
+        let node_parent = node.borrow().parent.clone();
+
+        node.borrow_mut().right = right_left.clone();
+
+        if let Some(right_left) = right_left {
+            right_left.borrow_mut().parent = Some(node.clone());
+        }
+
+        right_node.borrow_mut().left = Some(node.clone());
+        right_node.borrow_mut().parent = node_parent.clone();
+
+        // Parent's pointers
+        if let Some(parent) = node_parent {
+            let mut parent_borrow_mut = parent.borrow_mut();
+            if let Some(ref parent_right) = parent_borrow_mut.right {
+                if Rc::ptr_eq(&node, parent_right) {
+                    parent_borrow_mut.right = Some(right_node.clone());
+                }
+            } else {
+                parent_borrow_mut.left = Some(right_node.clone());
+            }
+        }
+
+        BinarySearchTree::update_height(&node);
+        BinarySearchTree::update_height(&right_node);
+
+        right_node
+    }
+
+    pub fn rotate_right(node: Tree) -> Tree {
+        let left_node = node
+            .borrow_mut()
+            .left
+            .take()
+            .expect("Left node must exist for rotation");
+        let left_right = left_node.borrow_mut().right.take();
+
+        let node_parent = node.borrow().parent.clone();
+
+        node.borrow_mut().left = left_right.clone();
+
+        if let Some(left_right) = left_right {
+            left_right.borrow_mut().parent = Some(node.clone());
+        }
+
+        left_node.borrow_mut().right = Some(node.clone());
+        left_node.borrow_mut().parent = node_parent.clone();
+
+        // Parent's pointers
+        if let Some(parent) = node_parent {
+            let mut parent_borrow_mut = parent.borrow_mut();
+            if let Some(ref parent_left) = parent_borrow_mut.left {
+                if Rc::ptr_eq(&node, parent_left) {
+                    parent_borrow_mut.left = Some(left_node.clone());
+                }
+            } else {
+                parent_borrow_mut.right = Some(left_node.clone());
+            }
+        }
+
+        BinarySearchTree::update_height(&node);
+        BinarySearchTree::update_height(&left_node);
+
+        left_node
     }
 
     pub fn delete(&mut self, key: i32) {
@@ -101,30 +176,6 @@ impl AVL {
         match &node.borrow().left {
             Some(left) => Self::min_value_node(left),
             None => node.clone(),
-        }
-    }
-
-    pub fn print_structure(&self) {
-        self.print_helper(&self.tree.root, 0, "Root: ");
-    }
-
-    fn print_helper(&self, node: &GenericTree, space: usize, prefix: &str) {
-        if node.is_none() {
-            return;
-        }
-        let space = space + 10;
-
-        if let Some(ref right) = node.as_ref().unwrap().borrow().right {
-            self.print_helper(&Some(right.clone()), space, "Right: ");
-        }
-
-        for _ in 10..space {
-            print!(" ");
-        }
-        println!("{}{}", prefix, node.as_ref().unwrap().borrow().key);
-
-        if let Some(ref left) = node.as_ref().unwrap().borrow().left {
-            self.print_helper(&Some(left.clone()), space, "Left: ");
         }
     }
 }
