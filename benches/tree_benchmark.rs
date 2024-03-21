@@ -25,7 +25,7 @@ use std::time::Instant;
 //         // Record AVL benchmark results...
 //         c.benchmark_group(format!("Tree Size {}", size))
 //             .bench_function("AVL Insert", |b| b.iter(|| black_box(avl_insert_time)));
-        
+
 //         c.benchmark_group(format!("Tree Size {}", size))
 //             .bench_function("AVL Search", |b| b.iter(|| black_box(avl_search_time)));
 //     }
@@ -37,7 +37,6 @@ fn benchmark_avl_tree_fix(c: &mut Criterion) {
     for &size in &tree_sizes {
         let mut group = c.benchmark_group(format!("AVL Tree Size {}", size));
         group.measurement_time(std::time::Duration::new(10, 0));
-
 
         group.bench_function("AVL Insert", |b| {
             b.iter(|| {
@@ -104,7 +103,6 @@ fn benchmark_rb_tree_fix(c: &mut Criterion) {
         let mut group = c.benchmark_group(format!("RB Tree Size {}", size));
         group.measurement_time(std::time::Duration::new(70, 0));
 
-
         group.bench_function("RB Insert", |b| {
             b.iter(|| {
                 let mut tree = RedBlackTree::new();
@@ -167,4 +165,3 @@ fn benchmark_rb_tree_fix(c: &mut Criterion) {
 
 criterion_group!(benches, benchmark_avl_tree_fix, benchmark_rb_tree_fix);
 criterion_main!(benches);
-

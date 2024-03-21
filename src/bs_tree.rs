@@ -1,7 +1,7 @@
+use colored::*;
 use std::cell::RefCell;
 use std::cmp::max;
 use std::rc::Rc;
-use colored::*;
 
 pub type Tree = Rc<RefCell<Node>>;
 pub type GenericTree = Option<Tree>;
@@ -140,7 +140,7 @@ impl BinarySearchTree {
         while let Some(node) = current_node {
             let node_ref = node.borrow();
             if node_ref.key == key {
-                return Some(node.clone()); 
+                return Some(node.clone());
             } else if key < node_ref.key {
                 current_node = node_ref.left.clone();
             } else {
@@ -149,7 +149,6 @@ impl BinarySearchTree {
         }
         None
     }
-
 
     pub fn print_structure(&self) {
         self.print_helper(&self.root, 0, "Root: ");

@@ -2,6 +2,24 @@ use crate::avl_tree::AVLTree;
 use crate::rb_tree::RedBlackTree;
 use std::io;
 
+fn parse_keys(input: &str) -> (Vec<i32>, bool) {
+    let mut invalid_input_encountered = false;
+    let keys = input
+        .split(|c: char| c == ',' || c.is_whitespace())
+        .filter_map(|s| match s.trim().parse::<i32>() {
+            Ok(num) => Some(num),
+            Err(_) => {
+                if !s.trim().is_empty() {
+                    invalid_input_encountered = true;
+                }
+                None
+            }
+        })
+        .collect::<Vec<i32>>();
+
+    (keys, invalid_input_encountered)
+}
+
 fn avl_interface() {
     println!("AVL Tree Created!");
     let mut avl = AVLTree::new();
@@ -9,33 +27,41 @@ fn avl_interface() {
         println!("+------------------------+");
         println!("| Enter AVL Tree Command |");
         println!("+------------------------+");
-        println!("1: Add Key to AVL\n2: Delete Key from AVL\n3: Find the number of leaves\n4: Find the height of tree\n5: Print In-Order Tree\n6: Print Pre-Order Tree\n7: Print Post-Order Tree\n8: Check if Tree is empty\n9: Print Tree Structure\n10: Exit to Main Menu");
+        println!("1: Add Keys to AVL\n2: Delete Key from AVL\n3: Find the number of leaves\n4: Find the height of tree\n5: Print In-Order Tree\n6: Print Pre-Order Tree\n7: Print Post-Order Tree\n8: Check if Tree is empty\n9: Print Tree Structure\n10: Exit to Main Menu");
 
         let mut input = String::new();
-        input.clear(); // Clear the input buffer before reading a new value
+        input.clear();
         io::stdin()
             .read_line(&mut input)
             .expect("Failed to read line");
 
         match input.trim() {
             "1" => {
-                println!("Enter Key to Insert: ");
-                input.clear(); // Clear the input buffer before reading a new value
+                println!("Enter Keys to Insert (comma or space-separated): ");
+                input.clear();
                 io::stdin()
                     .read_line(&mut input)
                     .expect("Failed to read line");
-                let key = input.trim().parse::<i32>(); // Attempt to parse the input as an integer
 
-                match key {
-                    Ok(k) => {
+                let (keys, invalid_input_encountered) = parse_keys(&input);
+                if keys.is_empty() {
+                    if invalid_input_encountered {
+                        println!("No valid numbers found. Please insert a stream of numbers (comma or space-separated).");
+                    } else {
+                        println!("No input provided. Please enter some numbers.");
+                    }
+                } else {
+                    for k in keys {
                         if avl.tree.search(k).is_some() {
-                            println!("Key already exists")
+                            println!("Key {} already exists", k);
                         } else {
                             avl.insert(k);
                             println!("Key {} inserted.", k);
                         }
                     }
-                    Err(_) => println!("Please enter a valid integer."),
+                    if invalid_input_encountered {
+                        println!("Some inputs were not valid numbers and were ignored.");
+                    }
                 }
             }
             "2" => {
@@ -102,7 +128,7 @@ fn rb_interface() {
         println!("+------------------------------+");
         println!("| Enter Red Black Tree Command |");
         println!("+------------------------------+");
-        println!("1: Add Key to RBT\n2: Delete Key from RBT\n3: Find the number of leaves\n4: Find the height of tree\n5: Print In-Order Tree\n6: Print Pre-Order Tree\n7: Print Post-Order Tree\n8: Check if Tree is empty\n9: Print Tree Structure\n10: Exit to Main Menu");
+        println!("1: Add Keys to RBT\n2: Delete Key from RBT\n3: Find the number of leaves\n4: Find the height of tree\n5: Print In-Order Tree\n6: Print Pre-Order Tree\n7: Print Post-Order Tree\n8: Check if Tree is empty\n9: Print Tree Structure\n10: Exit to Main Menu");
 
         let mut input = String::new();
         input.clear(); // Clear the input buffer before reading a new value
@@ -112,23 +138,30 @@ fn rb_interface() {
 
         match input.trim() {
             "1" => {
-                println!("Enter Key to Insert: ");
-                input.clear(); // Clear the input buffer before reading a new value
+                println!("Enter Keys to Insert (comma or space-separated): ");
+                input.clear();
                 io::stdin()
                     .read_line(&mut input)
                     .expect("Failed to read line");
-                let key = input.trim().parse::<i32>(); // Attempt to parse the input as an integer
-
-                match key {
-                    Ok(k) => {
+                let (keys, invalid_input_encountered) = parse_keys(&input);
+                if keys.is_empty() {
+                    if invalid_input_encountered {
+                        println!("No valid numbers found. Please insert a stream of numbers (comma or space-separated).");
+                    } else {
+                        println!("No input provided. Please enter some numbers.");
+                    }
+                } else {
+                    for k in keys {
                         if rbt.tree.search(k).is_some() {
-                            println!("Key already exists")
+                            println!("Key {} already exists", k);
                         } else {
                             rbt.insert(k);
                             println!("Key {} inserted.", k);
                         }
                     }
-                    Err(_) => println!("Please enter a valid integer."),
+                    if invalid_input_encountered {
+                        println!("Some inputs were not valid numbers and were ignored.");
+                    }
                 }
             }
             "2" => {
@@ -190,6 +223,8 @@ fn rb_interface() {
 }
 
 pub fn user_input_display() {
+    println!("Welcome to Baltree! An implementation of self balancing trees.");
+    println!();
     loop {
         println!("+---------------+");
         println!("| Enter Command |");

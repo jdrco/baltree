@@ -166,30 +166,30 @@ impl RedBlackTree {
         }
     }
 
-    fn rotate_left(tree_node: Tree) {
-        let cur_parent = tree_node.clone();
-        let right_child = cur_parent
+    fn rotate_left(node: Tree) {
+        let parent = node.clone();
+        let right_child = parent
             .borrow()
             .right
             .clone()
             .expect("Right node must exist");
 
         let right_child_left = right_child.borrow().left.clone();
-        cur_parent.borrow_mut().right = right_child_left.clone();
+        parent.borrow_mut().right = right_child_left.clone();
 
         if let Some(ref right_child_left) = right_child_left {
-            right_child_left.borrow_mut().parent = Some(cur_parent.clone());
+            right_child_left.borrow_mut().parent = Some(parent.clone());
         }
 
-        right_child.borrow_mut().left = Some(cur_parent.clone());
-        right_child.borrow_mut().parent = cur_parent.borrow().parent.clone();
+        right_child.borrow_mut().left = Some(parent.clone());
+        right_child.borrow_mut().parent = parent.borrow().parent.clone();
 
-        if let Some(ref grandparent) = cur_parent.borrow().parent {
+        if let Some(ref grandparent) = parent.borrow().parent {
             let mut grandparent_borrow = grandparent.borrow_mut();
             if grandparent_borrow
                 .right
                 .as_ref()
-                .map_or(false, |r| Rc::ptr_eq(r, &cur_parent))
+                .map_or(false, |r| Rc::ptr_eq(r, &parent))
             {
                 grandparent_borrow.right = Some(right_child.clone());
             } else {
@@ -197,33 +197,29 @@ impl RedBlackTree {
             }
         }
 
-        cur_parent.borrow_mut().parent = Some(right_child.clone());
+        parent.borrow_mut().parent = Some(right_child.clone());
     }
 
-    fn rotate_right(tree_node: Tree) {
-        let cur_parent = tree_node.clone();
-        let left_child = cur_parent
-            .borrow()
-            .left
-            .clone()
-            .expect("Left node must exist");
+    fn rotate_right(node: Tree) {
+        let parent = node.clone();
+        let left_child = parent.borrow().left.clone().expect("Left node must exist");
 
         let left_child_right = left_child.borrow().right.clone();
-        cur_parent.borrow_mut().left = left_child_right.clone();
+        parent.borrow_mut().left = left_child_right.clone();
 
         if let Some(ref left_child_right) = left_child_right {
-            left_child_right.borrow_mut().parent = Some(cur_parent.clone());
+            left_child_right.borrow_mut().parent = Some(parent.clone());
         }
 
-        left_child.borrow_mut().right = Some(cur_parent.clone());
-        left_child.borrow_mut().parent = cur_parent.borrow().parent.clone();
+        left_child.borrow_mut().right = Some(parent.clone());
+        left_child.borrow_mut().parent = parent.borrow().parent.clone();
 
-        if let Some(ref grandparent) = cur_parent.borrow().parent {
+        if let Some(ref grandparent) = parent.borrow().parent {
             let mut grandparent_borrow = grandparent.borrow_mut();
             if grandparent_borrow
                 .left
                 .as_ref()
-                .map_or(false, |l| Rc::ptr_eq(l, &cur_parent))
+                .map_or(false, |l| Rc::ptr_eq(l, &parent))
             {
                 grandparent_borrow.left = Some(left_child.clone());
             } else {
@@ -231,7 +227,7 @@ impl RedBlackTree {
             }
         }
 
-        cur_parent.borrow_mut().parent = Some(left_child.clone());
+        parent.borrow_mut().parent = Some(left_child.clone());
     }
 
     pub fn delete(&mut self, key: i32) {
